@@ -17,58 +17,28 @@ const figtree = Figtree({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#0b1a16',
+  themeColor: '#0f3a33',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
 };
 
 export const metadata: Metadata = {
-  title: 'EcoVision - AI Waste Scanner, Sustainability Hub & Eco-Gamification',
+  title: 'EcoVision Mini AI - Campus Waste Sorting Assistant',
   description:
-    'Real-time AI waste sorting scanner with Google Gemini. Detects recyclable, organic, hazardous, and general waste with instant contamination alerts, dynamic carbon impact metrics, local drop-off maps, and AI upcycling guides.',
+    'Instant AI-powered waste classification for college campuses using Google Gemini. Detects recyclable, organic, hazardous, and general waste in seconds.',
   keywords: [
+    'waste sorting',
+    'campus recycling',
+    'AI waste classification',
     'EcoVision',
-    'AI waste scanner',
-    'campus waste sorting',
-    'recycling AI',
-    'carbon footprint tracker',
-    'upcycling recipes',
-    'Google Gemini AI',
-    'sustainability dashboard',
-    'smart recycling bin',
+    'Google Gemini',
+    'sustainability',
   ],
-  authors: [{ name: 'EcoVision AI Team' }],
-  creator: 'EcoVision',
-  publisher: 'EcoVision Campus Sustainability',
+  authors: [{ name: 'EcoVision Team' }],
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://ecovision-six.vercel.app',
-    title: 'EcoVision - AI Waste Scanner & Sustainability Hub',
-    description:
-      'Instant AI-powered waste classification, contamination detection, eco-impact translator, and drop-off maps for campuses and households.',
-    siteName: 'EcoVision AI',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'EcoVision - AI Waste Scanner & Sustainability Hub',
-    description:
-      'Instant AI waste classification, contamination detection, and smart eco-impact translation powered by Google Gemini.',
-  },
-  alternates: {
-    canonical: 'https://ecovision-six.vercel.app',
   },
 };
 

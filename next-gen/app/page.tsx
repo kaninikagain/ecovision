@@ -1,950 +1,871 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AnalyseResponse, WasteCategory } from '@/lib/types';
-
-// Preset item type for interactive live demo
-interface DemoPreset {
-  id: string;
-  name: string;
-  emoji: string;
-  tag: string;
-  tagLabel: string;
-  confidence: string;
-  co2Saved: string;
-  energyAvoided: string;
-  phoneEquiv: string;
-  bulbEquiv: string;
-  contaminationAlert?: {
-    title: string;
-    description: string;
-    isContaminated: boolean;
-  };
-  upcyclingSteps: Array<{ title: string; desc: string }>;
-  ecoSwap: {
-    title: string;
-    description: string;
-    tags: string[];
-  };
-  result: AnalyseResponse;
-}
-
-const DEMO_PRESETS: DemoPreset[] = [
-  {
-    id: 'pizza-box',
-    name: 'Cardboard Pizza Box',
-    emoji: '🍕',
-    tag: 'composite',
-    tagLabel: '89% match',
-    confidence: '89%',
-    co2Saved: '-0.14 kg',
-    energyAvoided: '0.22 kWh',
-    phoneEquiv: 'Equivalent to fully charging 18 smartphones',
-    bulbEquiv: 'Powering an LED bulb for 14 hours',
-    contaminationAlert: {
-      title: 'Contamination Spotted:',
-      description: 'Food and grease found! Rip off the clean top half to recycle, discard the oily bottom in general/compost.',
-      isContaminated: true,
-    },
-    upcyclingSteps: [
-      { title: 'Soiled bottom half:', desc: 'Place in backyard compost pile or municipal organic bin.' },
-      { title: 'Torn Cardboard:', desc: 'Use as weed barrier or moisture retainer in garden mulch.' },
-      { title: 'Clean top half:', desc: 'Rip along fold line and place in clean paper/cardboard recycling.' },
-    ],
-    ecoSwap: {
-      title: 'Eco-Swap Suggestion:',
-      description: 'Reusable beeswax wraps / silicone baking mats',
-      tags: ['Reusable beeswax', 'Baking mats', 'Silicone baking mats'],
-    },
-    result: {
-      item_name: 'Cardboard Pizza Box (Grease Soiled)',
-      category: 'general' as WasteCategory,
-      model_category: 'general',
-      bin_name: 'Separate by component',
-      guidance: 'Tear off the clean lid for paper recycling; discard the greasy bottom half into compost or general waste.',
-      caution: 'Grease and cheese oils ruin paper pulping bales. Never recycle oil-soaked cardboard.',
-      explanation: 'Soiled with grease. Clean lid is recyclable; oily base is non-recyclable.',
-      uncertainty_flag: false,
-      valid_json: true,
-      model: 'gemini-3-flash-preview',
-      provider: 'gemini',
-      latency_ms: 280,
-      disassembly_steps: [
-        { part: 'Clean Top Lid', bin_name: 'Recycling bin', action: 'Tear off and place in paper/cardboard bin' },
-        { part: 'Oily Bottom Base', bin_name: 'General waste / Compost', action: 'Compost in green bin or discard in trash' },
-      ],
-      eco_impact: {
-        co2_saved_grams: 140,
-        energy_saved_wh: 220,
-        equivalency: 'Fully charges 18 smartphones and powers LED for 14 hours',
-      },
-    },
-  },
-  {
-    id: 'yellow-bulb',
-    name: 'Yellow Light Bulb',
-    emoji: '💡',
-    tag: 'general',
-    tagLabel: '94% match',
-    confidence: '94%',
-    co2Saved: '0.00 kg',
-    energyAvoided: '0.00 kWh',
-    phoneEquiv: 'Proper trash disposal protects glass recycling bales',
-    bulbEquiv: 'Shields sanitation workers from glass lacerations',
-    contaminationAlert: {
-      title: 'Non-Hazardous General Waste:',
-      description: 'Incandescent/LED bulbs contain no toxic mercury. Do NOT put in glass recycling (heat-treated glass ruins furnaces). Wrap in paper/box before trash binning.',
-      isContaminated: false,
-    },
-    upcyclingSteps: [
-      { title: 'Broken/Burnt filament:', desc: 'Wrap securely in newspaper, plastic, or a cardboard box to prevent cut hazards.' },
-      { title: 'Craft upcycling:', desc: 'Hollow out clear glass for DIY miniature terrariums or holiday ornaments.' },
-      { title: 'Energy transition:', desc: 'Replace with high-efficiency LED bulbs to save 85% lighting electricity.' },
-    ],
-    ecoSwap: {
-      title: 'Eco-Swap Suggestion:',
-      description: 'Energy Star certified Smart LED Bulbs (15,000+ hour lifespan)',
-      tags: ['Smart LED Bulbs', 'Low-energy lighting', 'Dimmable LEDs'],
-    },
-    result: {
-      item_name: 'Yellow Incandescent Light Bulb',
-      category: 'general' as WasteCategory,
-      model_category: 'general',
-      bin_name: 'Non-recyclable general waste',
-      guidance: 'Put it in the regular non-hazardous general waste (trash) bin. Wrap securely in paper or a cardboard box to prevent cuts. Do not put in glass recycling.',
-      caution: 'Incandescent, halogen, and LED bulbs contain no toxic mercury and belong in regular trash—never in glass recycling.',
-      explanation: 'Contains no toxic mercury; classified as regular household trash. Heat-treated glass ruins glass recycling.',
-      uncertainty_flag: false,
-      valid_json: true,
-      model: 'gemini-3-flash-preview',
-      provider: 'gemini',
-      latency_ms: 290,
-      disassembly_steps: [
-        { part: 'Glass Bulb Enclosure', bin_name: 'General waste bin', action: 'Wrap securely in paper or box to prevent cut hazards' },
-      ],
-      eco_impact: {
-        co2_saved_grams: 0,
-        energy_saved_wh: 0,
-        equivalency: 'Wrapped securely to protect campus sanitation staff from injuries',
-      },
-    },
-  },
-  {
-    id: 'broken-mug',
-    name: 'Broken Ceramic Mug',
-    emoji: '☕',
-    tag: 'general',
-    tagLabel: '92% match',
-    confidence: '92%',
-    co2Saved: '0.00 kg',
-    energyAvoided: '0.00 kWh',
-    phoneEquiv: 'Prevents melting furnace defects in glass plants',
-    bulbEquiv: 'Safeguards cleaning crew from sharp porcelain shards',
-    contaminationAlert: {
-      title: 'Non-Recyclable Ceramics:',
-      description: 'Ceramics have a much higher melting point than container glass and ruin recycling furnaces. Wrap shards in thick paper or cardboard before binning.',
-      isContaminated: false,
-    },
-    upcyclingSteps: [
-      { title: 'Kintsugi Artistry:', desc: 'Repair fractures with gold epoxy or resin for decorative desktop planters.' },
-      { title: 'Planter drainage:', desc: 'Crush broken shards to line the bottom of indoor plant pots for superior root drainage.' },
-      { title: 'Mosaic crafts:', desc: 'Use colorful glazed pieces for outdoor stepping stone mosaics.' },
-    ],
-    ecoSwap: {
-      title: 'Eco-Swap Suggestion:',
-      description: 'Double-walled stainless steel thermal mug or bamboo fiber tumblers',
-      tags: ['Stainless travel mug', 'Bamboo tumbler', 'Shatterproof cup'],
-    },
-    result: {
-      item_name: 'Broken Ceramic Mug (Crockery Shards)',
-      category: 'general' as WasteCategory,
-      model_category: 'general',
-      bin_name: 'Non-recyclable general waste',
-      guidance: 'Put it in the non-recyclable general waste bin. Wrap broken shards safely in newspaper or cardboard before binning to protect sanitation staff.',
-      caution: 'Broken ceramics and mugs cannot be melted with container glass in recycling furnaces and must go to general waste.',
-      explanation: 'Ceramics have high melting points that ruin glass recycling and broken shards pose a cut hazard.',
-      uncertainty_flag: false,
-      valid_json: true,
-      model: 'gemini-3-flash-preview',
-      provider: 'gemini',
-      latency_ms: 310,
-      eco_impact: {
-        co2_saved_grams: 0,
-        energy_saved_wh: 0,
-        equivalency: 'Wrapped securely to protect campus sanitation staff from injuries',
-      },
-    },
-  },
-  {
-    id: 'soda-can',
-    name: 'Crushed Soda Can',
-    emoji: '🥫',
-    tag: 'recycle',
-    tagLabel: '98% match',
-    confidence: '98%',
-    co2Saved: '-0.17 kg',
-    energyAvoided: '0.35 kWh',
-    phoneEquiv: 'Equivalent to powering a laptop for 3.5 hours',
-    bulbEquiv: 'Illuminates an LED desk lamp for 22 hours',
-    contaminationAlert: {
-      title: 'Prime Recyclable Aluminum:',
-      description: 'Empty of liquid residue and place in campus metal recycling. Aluminum can be melted and re-manufactured indefinitely!',
-      isContaminated: false,
-    },
-    upcyclingSteps: [
-      { title: 'Empty & Rinse:', desc: 'Rinse out soda syrup to avoid attracting fruit flies or ants.' },
-      { title: 'Crush flat:', desc: 'Compact vertically to conserve campus sorting bin capacity.' },
-      { title: 'Infinite remelt:', desc: 'Recycled aluminum returns to supermarket shelves within 60 days.' },
-    ],
-    ecoSwap: {
-      title: 'Eco-Swap Suggestion:',
-      description: 'Stainless steel refillable water bottle or home soda siphons',
-      tags: ['Refillable bottle', 'Home carbonator', 'Zero-waste drinks'],
-    },
-    result: {
-      item_name: 'Aluminum Beverage Can',
-      category: 'recyclable' as WasteCategory,
-      model_category: 'recyclable',
-      bin_name: 'Recycling bin',
-      guidance: 'Empty liquid residue and place in campus metal recycling.',
-      caution: 'Ensure cans are fully drained before placing in mixed paper/metal bins.',
-      explanation: 'Infinitely recyclable aluminum with 95% energy savings over raw smelting.',
-      uncertainty_flag: false,
-      valid_json: true,
-      model: 'gemini-3-flash-preview',
-      provider: 'gemini',
-      latency_ms: 280,
-      eco_impact: {
-        co2_saved_grams: 170,
-        energy_saved_wh: 350,
-        equivalency: 'Powers a student laptop for 3.5 hours',
-      },
-    },
-  },
-];
+import { AnalyseResponse, RulesData, HealthResponse, StatsResponse, WasteCategory } from '@/lib/types';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'scan' | 'map' | 'insights' | 'diy' | 'about'>('scan');
-  const [activePreset, setActivePreset] = useState<DemoPreset>(DEMO_PRESETS[0]);
-  const [upcycleStepIndex, setUpcycleStepIndex] = useState<number>(0);
-  
-  // Real scanner state
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
-  const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
   const [statusText, setStatusText] = useState<string>('');
-  const [scanResult, setScanResult] = useState<AnalyseResponse | null>(DEMO_PRESETS[0].result);
-  
-  // Voice synthesis & recognition state
-  const [isVoiceActive, setIsVoiceActive] = useState<boolean>(true);
-  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [sampleMode, setSampleMode] = useState<boolean>(false);
+  const [isDragOver, setIsDragOver] = useState<boolean>(false);
 
-  // Gamification user state
-  const [userScore, setUserScore] = useState({
-    xp: 5200,
-    level: 5,
-    streakDays: 12,
-  });
+  // Result state
+  const [result, setResult] = useState<AnalyseResponse | null>(null);
+  const [isSampleResult, setIsSampleResult] = useState<boolean>(false);
+
+  // Cumulative student session stats from localStorage
+  const [userStats, setUserStats] = useState<{
+    totalScans: number;
+    totalCo2Grams: number;
+    streak: number;
+  }>({ totalScans: 0, totalCo2Grams: 0, streak: 0 });
+
+  // API Health & Rules state
+  const [apiReady, setApiReady] = useState<boolean>(false);
+  const [apiStatusText, setApiStatusText] = useState<string>('Connecting to the API...');
+  const [statsText, setStatsText] = useState<string>('Loading scan statistics...');
+  const [rules, setRules] = useState<Record<string, any>>({});
+  const [activeQuickTest, setActiveQuickTest] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const resultRef = useRef<HTMLElement>(null);
 
-  // Sync upcycle carousel index when preset changes
+  // Load cumulative stats on mount
   useEffect(() => {
-    setUpcycleStepIndex(0);
-  }, [activePreset]);
-
-  // Handle Preset Selection (1-click demo)
-  const handleSelectPreset = (preset: DemoPreset) => {
-    setActivePreset(preset);
-    setScanResult(preset.result);
-    setPreviewUrl(null);
-    setImageBase64(null);
-    setStatusText('');
-  };
-
-  // Upcycling Carousel navigation
-  const nextUpcycleStep = () => {
-    setUpcycleStepIndex((prev) => (prev + 1) % activePreset.upcyclingSteps.length);
-  };
-  const prevUpcycleStep = () => {
-    setUpcycleStepIndex((prev) => (prev - 1 + activePreset.upcyclingSteps.length) % activePreset.upcyclingSteps.length);
-  };
-
-  // Voice Speech Synthesis Handler
-  const handleVoiceSpeak = () => {
-    if (!('speechSynthesis' in window)) {
-      alert('Speech synthesis is not supported on this device.');
-      return;
+    try {
+      const saved = localStorage.getItem('ecovision_user_stats');
+      if (saved) {
+        setUserStats(JSON.parse(saved));
+      }
+    } catch {
+      // ignore storage errors
     }
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      return;
-    }
+  }, []);
 
-    const currentItem = scanResult?.item_name || activePreset.name;
-    const advice = activePreset.contaminationAlert
-      ? `${currentItem}. ${activePreset.contaminationAlert.title} ${activePreset.contaminationAlert.description}`
-      : `${currentItem}. Put it in ${scanResult?.bin_name || 'the designated bin'}. ${scanResult?.guidance || ''}`;
+  const recordScanSuccess = useCallback((res: AnalyseResponse) => {
+    setUserStats((prev) => {
+      const updated = {
+        totalScans: prev.totalScans + 1,
+        totalCo2Grams: prev.totalCo2Grams + (res.eco_impact?.co2_saved_grams || 0),
+        streak: prev.streak + 1,
+      };
+      try {
+        localStorage.setItem('ecovision_user_stats', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
 
-    const utterance = new SpeechSynthesisUtterance(advice);
-    utterance.rate = 1.0;
-    utterance.pitch = 1.05;
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    window.speechSynthesis.speak(utterance);
+  // Quick-Test Swag Preset Items for instant foolproof demo
+  const QUICK_TEST_PRESETS = [
+    {
+      id: 'coffee',
+      name: 'Starbucks Coffee Cup',
+      emoji: '☕',
+      tag: 'composite',
+      tagLabel: 'Multi-Part',
+      svgColor: '#78350f',
+      result: {
+        item_name: 'Takeaway Coffee Cup (Lid + Sleeve + Cup)',
+        category: 'recyclable' as WasteCategory,
+        model_category: 'recyclable',
+        bin_name: 'Separate by component',
+        guidance: 'Plastic lid and cardboard sleeve are recyclable; waxed cup belongs in general waste.',
+        caution: 'Never toss unseparated coffee cups into paper bins—the inner polyethylene wax coating ruins paper pulping.',
+        explanation: 'Multi-part composite container with separate recyclable and landfill components.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-composite-breakdown',
+        provider: 'gemini',
+        latency_ms: 320,
+        disassembly_steps: [
+          { part: 'Plastic Sip Lid (#5 PP)', bin_name: 'Recycling bin', action: 'Pull off, rinse clean, and bin with rigid plastics' },
+          { part: 'Cardboard Cup Sleeve', bin_name: 'Recycling bin', action: 'Slide off, flatten, and toss in paper/cardboard bin' },
+          { part: 'Wax-Lined Paper Cup', bin_name: 'General waste', action: 'Discard in campus general landfill (wax liner is non-pulpable)' },
+        ],
+        eco_impact: {
+          co2_saved_grams: 55,
+          energy_saved_wh: 90,
+          equivalency: 'Powers an LED study lamp for 9 hours',
+        },
+      },
+    },
+    {
+      id: 'can',
+      name: 'Crushed Soda Can',
+      emoji: '🥫',
+      tag: 'recycle',
+      tagLabel: 'Recycle',
+      svgColor: '#1d4ed8',
+      result: {
+        item_name: 'Crushed Beverage Can (Aluminum)',
+        category: 'recyclable' as WasteCategory,
+        model_category: 'recyclable',
+        bin_name: 'Recycling bin',
+        guidance: 'Empty liquid residue and place in campus metal recycling.',
+        caution: 'Check that cans are empty to avoid attracting pests or dampening paper bins.',
+        explanation: 'Infinitely recyclable aluminum with 95% energy savings over raw smelting.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-vision',
+        provider: 'gemini',
+        latency_ms: 280,
+        eco_impact: {
+          co2_saved_grams: 170,
+          energy_saved_wh: 350,
+          equivalency: 'Powers a student laptop for 3.5 hours',
+        },
+      },
+    },
+    {
+      id: 'banana',
+      name: 'Banana Peel',
+      emoji: '🍌',
+      tag: 'organic',
+      tagLabel: 'Organic',
+      svgColor: '#15803d',
+      result: {
+        item_name: 'Organic Banana Peel',
+        category: 'organic' as WasteCategory,
+        model_category: 'organic',
+        bin_name: 'Organic bin',
+        guidance: 'Put it in the campus compost or organic food-waste bin.',
+        caution: 'Remove any fruit brand stickers or plastic wrap before composting.',
+        explanation: 'Fast-decomposing organic matter rich in potassium and nitrogen.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-vision',
+        provider: 'gemini',
+        latency_ms: 240,
+        eco_impact: {
+          co2_saved_grams: 40,
+          energy_saved_wh: 50,
+          equivalency: 'Prevents 40g methane generation in local landfills',
+        },
+      },
+    },
+    {
+      id: 'battery',
+      name: 'AA Alkaline Battery',
+      emoji: '🔋',
+      tag: 'hazard',
+      tagLabel: 'Hazardous',
+      svgColor: '#b45309',
+      result: {
+        item_name: 'AA Cell Battery (E-Waste / Hazard)',
+        category: 'hazardous' as WasteCategory,
+        model_category: 'hazardous',
+        bin_name: 'E-waste point',
+        guidance: 'Drop off at the designated campus battery or e-waste recycling box.',
+        caution: 'Tape over both positive and negative terminals to prevent short circuits.',
+        explanation: 'Contains toxic electrolytes and heavy metals hazardous to ground ecology.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-vision',
+        provider: 'gemini',
+        latency_ms: 290,
+        eco_impact: {
+          co2_saved_grams: 190,
+          energy_saved_wh: 280,
+          equivalency: 'Shields campus soil and groundwater from heavy metal leachate',
+        },
+      },
+    },
+    {
+      id: 'chips',
+      name: 'Shiny Chip Packet',
+      emoji: '🍟',
+      tag: 'general',
+      tagLabel: 'Landfill',
+      svgColor: '#475569',
+      result: {
+        item_name: 'Potato Chip Wrapper (Metalized Plastic Foil)',
+        category: 'general' as WasteCategory,
+        model_category: 'general',
+        bin_name: 'General waste',
+        guidance: 'Put it in the general waste bin.',
+        caution: 'Consider bulk reusables next time to reduce single-use metallized packaging.',
+        explanation: 'Multi-layer BOPP/aluminum laminate that cannot be recycled mechanically.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-vision',
+        provider: 'gemini',
+        latency_ms: 260,
+        eco_impact: {
+          co2_saved_grams: 0,
+          energy_saved_wh: 0,
+          equivalency: 'Disposed cleanly without contaminating recycling bales',
+        },
+      },
+    },
+    {
+      id: 'broken-mug',
+      name: 'Broken Ceramic Mug',
+      emoji: '☕',
+      tag: 'general',
+      tagLabel: 'Non-Recyclable',
+      svgColor: '#78716c',
+      result: {
+        item_name: 'Broken Ceramic Mug (Crockery Shards)',
+        category: 'general' as WasteCategory,
+        model_category: 'general',
+        bin_name: 'Non-recyclable general waste',
+        guidance: 'Put it in the non-recyclable general waste bin. For broken items (broken ceramics, mugs, porcelain, or glass shards), wrap safely in newspaper or cardboard before binning to protect sanitation staff.',
+        caution: 'Broken ceramics and mugs cannot be melted with container glass in recycling furnaces and must go to general waste.',
+        explanation: 'Ceramics have high melting points that ruin glass recycling and broken shards pose a cut hazard.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-3-flash-preview',
+        provider: 'gemini',
+        latency_ms: 310,
+        eco_impact: {
+          co2_saved_grams: 0,
+          energy_saved_wh: 0,
+          equivalency: 'Wrapped securely to protect campus sanitation staff from injuries',
+        },
+      },
+    },
+    {
+      id: 'light-bulb',
+      name: 'Incandescent / LED Bulb',
+      emoji: '💡',
+      tag: 'general',
+      tagLabel: 'Non-Hazardous Trash',
+      svgColor: '#eab308',
+      result: {
+        item_name: 'Incandescent Light Bulb',
+        category: 'general' as WasteCategory,
+        model_category: 'general',
+        bin_name: 'Non-recyclable general waste',
+        guidance: 'Wrap securely in paper, plastic, or a cardboard box and place in the regular trash bin to prevent cuts. Do not put in the glass recycling bin.',
+        caution: 'Incandescent, halogen, and LED bulbs do not contain toxic mercury and are regular non-hazardous waste. Never put them in glass recycling bins.',
+        explanation: 'Contains no toxic mercury; classified as regular household trash. Heat-treated glass ruins glass recycling.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-3-flash-preview',
+        provider: 'gemini',
+        latency_ms: 290,
+        disassembly_steps: [
+          {
+            part: 'Glass Bulb Enclosure',
+            bin_name: 'General waste bin',
+            action: 'Wrap securely in paper or cardboard box before binning to prevent sharp cut hazards',
+          },
+        ],
+        eco_impact: {
+          co2_saved_grams: 0,
+          energy_saved_wh: 0,
+          equivalency: 'Wrapped securely to protect campus sanitation workers from glass lacerations',
+        },
+      },
+    },
+  ];
+
+  const handleSelectQuickTest = (preset: typeof QUICK_TEST_PRESETS[0]) => {
+    setActiveQuickTest(preset.id);
+    
+    // Generate an illustrative vector SVG preview
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+      <defs>
+        <radialGradient id="bg" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#2a4c44"/>
+          <stop offset="100%" stop-color="#0f2622"/>
+        </radialGradient>
+      </defs>
+      <rect width="600" height="400" fill="url(#bg)"/>
+      <circle cx="300" cy="180" r="85" fill="rgba(255,255,255,0.06)" stroke="#7ee08a" stroke-width="2" stroke-dasharray="6,4"/>
+      <text x="300" y="195" font-size="80" text-anchor="middle" dominant-baseline="middle">${preset.emoji}</text>
+      <text x="300" y="310" font-family="system-ui, sans-serif" font-size="22" font-weight="bold" fill="#ffffff" text-anchor="middle">${preset.name}</text>
+      <text x="300" y="340" font-family="system-ui, sans-serif" font-size="14" fill="#9cb8ad" text-anchor="middle">EcoVision Quick-Test Demo Sample</text>
+    </svg>`;
+    const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    setPreviewUrl(svgDataUrl);
+
+    // Dummy base64 jpeg header so validate rules pass if submitted
+    setImageBase64('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=');
+    
+    // Instantly populate result for high-speed demo day pitch
+    setResult(preset.result);
+    setIsSampleResult(true);
+    setStatusText(`Instant scan: ${preset.name}`);
+    recordScanSuccess(preset.result);
+
+    setTimeout(() => {
+      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
   };
 
-  // Image upload handling
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  // Canvas-based image compressor to optimize upload latency and prevent large payload lag
+  const processImageFile = useCallback((file: File) => {
+    setActiveQuickTest(null);
     if (!file.type.startsWith('image/')) {
       setStatusText('Please select an image file (JPEG, PNG, or WebP).');
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      setPreviewUrl(dataUrl);
-      const b64 = dataUrl.split(',')[1];
-      setImageBase64(b64);
-      setStatusText('Image ready. Click "Analyze Item" to scan.');
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 1024;
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          setPreviewUrl(dataUrl);
+          const b64 = dataUrl.split(',')[1];
+          setImageBase64(b64);
+          setStatusText('');
+          setResult(null);
+        }
+      };
+      img.src = e.target?.result as string;
     };
     reader.readAsDataURL(file);
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
   };
 
-  // Perform live analysis with Gemini backend
-  const handleLiveScan = async () => {
-    if (!imageBase64) {
-      fileInputRef.current?.click();
-      return;
-    }
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
 
-    setIsScanning(true);
-    setStatusText('Classifying item with Gemini 3 Flash...');
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  // Refresh statistics
+  const refreshStats = useCallback(async () => {
+    try {
+      const res = await fetch('/api/stats');
+      if (!res.ok) throw new Error('Stats request failed');
+      const stats: StatsResponse = await res.json();
+      const breakdown = Object.entries(stats.by_category || {})
+        .map(([cat, count]) => `${cat}: ${count}`)
+        .join(', ');
+
+      setStatsText(
+        `Scans: ${stats.total_scans}${breakdown ? ` (${breakdown})` : ''}${
+          stats.note ? ` · ${stats.note}` : ''
+        }`
+      );
+    } catch (err: any) {
+      setStatsText(`Stats unavailable: ${err.message}`);
+    }
+  }, []);
+
+  // Connect and verify API endpoints
+  const connectApi = useCallback(async () => {
+    setApiReady(false);
+    setApiStatusText('Connecting to API endpoints...');
 
     try {
-      const res = await fetch('/api/analyse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image_base64: imageBase64,
-          mime_type: 'image/jpeg',
-        }),
-      });
+      const [healthRes, rulesRes] = await Promise.all([
+        fetch('/api/health'),
+        fetch('/api/rules'),
+      ]);
 
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.detail || `Server error (${res.status})`);
+      if (!healthRes.ok || !rulesRes.ok) {
+        throw new Error('API server returned error code');
       }
 
-      const data: AnalyseResponse = await res.json();
-      setScanResult(data);
-      setStatusText('');
+      const health: HealthResponse = await healthRes.json();
+      const rulesData: RulesData = await rulesRes.json();
 
-      // Award XP for scanning
-      setUserScore((prev) => ({
-        ...prev,
-        xp: prev.xp + 150,
-        streakDays: prev.streakDays + 1,
-      }));
+      if (rulesData && rulesData.categories) {
+        setRules(rulesData.categories);
+      }
+
+      setApiReady(true);
+      setApiStatusText(
+        `Connected · ${health.provider} / ${health.model}${
+          health.key_set ? '' : ' · (API key not configured)'
+        }`
+      );
     } catch (err: any) {
-      console.error('Scan error:', err);
-      setStatusText(`Scan failed: ${err.message || 'Check network connection'}`);
+      setApiReady(false);
+      setApiStatusText(`API unavailable: ${err.message}. Ensure backend is running.`);
+    }
+
+    await refreshStats();
+  }, [refreshStats]);
+
+  useEffect(() => {
+    connectApi();
+  }, [connectApi]);
+
+  // Main scan action
+  const handleScan = async () => {
+    if (!imageBase64) return;
+
+    setIsScanning(true);
+    setStatusText('Scanning item with AI model...');
+    const t0 = performance.now();
+
+    try {
+      if (sampleMode) {
+        // Sample demonstration mode with realistic delay
+        await new Promise((r) => setTimeout(r, 1000));
+        const sampleResult: AnalyseResponse = {
+          item_name: 'Plastic drink bottle (PET)',
+          category: 'recyclable',
+          model_category: 'recyclable',
+          bin_name: 'Recycling bin',
+          guidance: 'Empty and rinse it, then put it in the campus recycling bin.',
+          caution: 'Greasy or wet items may not qualify.',
+          explanation: 'Clear polyethylene terephthalate container suitable for standard campus recycling.',
+          uncertainty_flag: false,
+          valid_json: true,
+          model: 'demo-sample-mode',
+          provider: 'sample',
+          latency_ms: 1000,
+          disassembly_steps: [
+            { part: 'PET Bottle Body', bin_name: 'Recycling bin', action: 'Rinse and crush' },
+            { part: 'HDPE Screw Cap', bin_name: 'Recycling bin', action: 'Screw cap back on bottle' },
+          ],
+          eco_impact: {
+            co2_saved_grams: 65,
+            energy_saved_wh: 120,
+            equivalency: 'Powers a smartphone for 5.5 hours',
+          },
+        };
+        setResult(sampleResult);
+        setIsSampleResult(true);
+        recordScanSuccess(sampleResult);
+      } else {
+        const res = await fetch('/api/analyse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image_base64: imageBase64,
+            mime_type: 'image/jpeg',
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.detail || 'Inference failed');
+        }
+
+        setResult(data);
+        setIsSampleResult(false);
+        recordScanSuccess(data);
+        await refreshStats();
+      }
+
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+      setStatusText(`Analysis complete in ${elapsed}s`);
+
+      // Scroll result into view smoothly
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    } catch (err: any) {
+      setStatusText(`Analysis failed: ${err.message}`);
     } finally {
       setIsScanning(false);
     }
   };
 
+  const handleReset = () => {
+    setImageBase64(null);
+    setPreviewUrl(null);
+    setResult(null);
+    setStatusText('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const isAnalyseDisabled =
+    !imageBase64 || isScanning || (!sampleMode && !apiReady);
+
+  const activeCategory: WasteCategory = result?.category || 'unsure';
+
   return (
     <>
-      {/* Schema.org Structured Data for Rich Search Results */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebApplication',
-            name: 'EcoVision AI',
-            url: 'https://ecovision-six.vercel.app',
-            applicationCategory: 'UtilitiesApplication',
-            operatingSystem: 'All',
-            description:
-              'Instant AI waste classification, contamination detection, eco-impact translator, and drop-off maps for campuses and households.',
-            offers: {
-              '@type': 'Offer',
-              price: '0',
-              priceCurrency: 'USD',
-            },
-          }),
-        }}
-      />
-
-      {/* Monstera Ambient Botanical Leaves Overlay */}
-      <div className="botanical-bg-leaves" aria-hidden="true">
-        <svg viewBox="0 0 200 200" fill="currentColor">
-          <path d="M100 0 C120 40 180 60 200 100 C160 120 140 180 100 200 C80 160 20 140 0 100 C40 80 60 20 100 0 Z" />
+      {/* HERO SECTION */}
+      <header className="hero">
+        <svg
+          className="hero-leaves"
+          viewBox="0 0 200 200"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M30 170 C20 100, 70 40, 150 30 C160 110, 110 170, 30 170 Z"
+            fill="currentColor"
+          />
+          <path
+            d="M50 150 C60 110, 90 70, 140 45"
+            stroke="rgba(255,255,255,0.4)"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
         </svg>
-      </div>
 
-      <div className="dashboard-wrapper">
-        {/* Hidden SEO primary heading */}
-        <h1 className="visually-hidden">
-          EcoVision: AI-Powered Campus Sustainability, Live Waste Scanner & Eco-Gamification Hub
-        </h1>
+        <div className="hero-content">
+          <div className="brand">
+            <span className="brand-dot"></span>
+            EcoVision Mini AI
+          </div>
+          <h1>Sort waste with AI. Instantly.</h1>
+          <p>
+            Hold any item up to your camera to classify it into recycling,
+            organic, hazardous, or general waste on campus.
+          </p>
 
-        {/* =========================================================
-           TOP NAVIGATION BAR
-           ========================================================= */}
-        <header>
-          <nav className="top-nav" aria-label="Main Navigation">
-            <a href="/" className="brand-wrap" title="EcoVision AI Homepage">
-              <div className="brand-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-                </svg>
-              </div>
-              <span className="brand-name">EcoVision</span>
-            </a>
-
-            <ul className="nav-links">
-              <li>
-                <button
-                  id="navLiveScan"
-                  type="button"
-                  className={`nav-link-btn ${activeTab === 'scan' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('scan')}
-                >
-                  Live Scan
-                </button>
-              </li>
-              <li>
-                <button
-                  id="navMap"
-                  type="button"
-                  className={`nav-link-btn ${activeTab === 'map' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('map')}
-                >
-                  Map
-                </button>
-              </li>
-              <li>
-                <button
-                  id="navInsights"
-                  type="button"
-                  className={`nav-link-btn ${activeTab === 'insights' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('insights')}
-                >
-                  Insights
-                </button>
-              </li>
-              <li>
-                <button
-                  id="navDiyHub"
-                  type="button"
-                  className={`nav-link-btn ${activeTab === 'diy' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('diy')}
-                >
-                  DIY Hub
-                </button>
-              </li>
-              <li>
-                <button
-                  id="navAbout"
-                  type="button"
-                  className={`nav-link-btn ${activeTab === 'about' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('about')}
-                >
-                  About
-                </button>
-              </li>
-            </ul>
-
-            <div className="user-profile-pill" id="userProfileBadge" title="User Level & Streak">
-              <div className="user-profile-info">
-                <span className="user-profile-title">User Profile: Level {userScore.level} 🔥</span>
-                <span className="user-profile-badge">Badge: Eco Warrior</span>
-              </div>
-              <div className="avatar-ring">
-                <span>🌱</span>
-              </div>
+          <div className="bins" aria-label="Campus waste categories">
+            <div className="bin blue" title="Recyclable items">
+              <span>Recycle</span>
             </div>
-          </nav>
-        </header>
+            <div className="bin green" title="Organic compost">
+              <span>Organic</span>
+            </div>
+            <div className="bin grey" title="General landfill">
+              <span>General</span>
+            </div>
+            <div className="bin red" title="Hazardous & E-waste">
+              <span>E-Waste</span>
+            </div>
+          </div>
+        </div>
+      </header>
 
-        {/* =========================================================
-           MAIN 3-COLUMN DASHBOARD GRID
-           ========================================================= */}
-        <main className="dashboard-grid">
-          {/* -------------------------------------------------------
-             COLUMN 1: LIVE ECO-SCANNER & ALERTS
-             ------------------------------------------------------- */}
-          <section className="col-container col-scanner" aria-labelledby="colHeaderScanner">
-            <h2 id="colHeaderScanner" className="col-header">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="m4.93 4.93 4.24 4.24" />
-                <path d="m14.83 9.17 4.24-4.24" />
-                <path d="m14.83 14.83 4.24 4.24" />
-                <path d="m9.17 14.83-4.24 4.24" />
-              </svg>
-              Live Eco-Scanner & Alerts
-            </h2>
+      {/* MAIN APPLICATION CONTAINER */}
+      <main>
+        {/* SCANNER CARD */}
+        <section className="card" aria-labelledby="scan-heading">
+          <h2 id="scan-heading" className="card-title">
+            Scan an item
+          </h2>
+          <p className="sub">Place one item on a plain background with good light.</p>
 
-            <article className="panel-card scanner-panel" id="scannerCard">
-              {/* Scanner Viewport */}
-              <div
-                className="scanner-viewport-wrap"
-                id="scannerViewport"
-                onClick={() => fileInputRef.current?.click()}
-                title="Click or drag image to scan"
-              >
-                <input
-                  ref={fileInputRef}
-                  id="cameraInput"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="visually-hidden"
-                  onChange={handleFileChange}
-                />
+          <div
+            className={`viewfinder ${isScanning ? 'scanning' : ''} ${
+              isDragOver ? 'drag-over' : ''
+            }`}
+            id="vf"
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              id="fileInput"
+              accept="image/*"
+              capture="environment"
+              aria-label="Upload or take photo of waste item"
+              onChange={handleFileChange}
+            />
 
-                {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={previewUrl} alt="Live waste scan preview" className="scanner-video-preview" />
-                ) : (
-                  <div className="scanner-preset-preview" style={{ width: '100%', height: '100%', position: 'relative' }}>
-                    {/* Stylized Vector SVG Preview for Current Preset Item */}
-                    <svg viewBox="0 0 600 360" className="scanner-video-preview" style={{ background: '#0a1a15' }}>
-                      <defs>
-                        <radialGradient id="gradItem" cx="50%" cy="50%" r="50%">
-                          <stop offset="0%" stopColor="#1e3a32" />
-                          <stop offset="100%" stopColor="#0a1a15" />
-                        </radialGradient>
-                      </defs>
-                      <rect width="600" height="360" fill="url(#gradItem)" />
-                      {/* Stylized Box / Container graphic */}
-                      <g transform="translate(180, 70)">
-                        <rect x="0" y="30" width="240" height="150" rx="16" fill="#8d6e63" stroke="#d7ccc8" strokeWidth="3" opacity="0.9" />
-                        <rect x="15" y="15" width="210" height="30" rx="6" fill="#6d4c41" opacity="0.8" />
-                        {/* Oil / grease stains illustrative markings */}
-                        <path d="M70 70 Q90 60 110 80 T150 75 Q160 100 130 110 T80 100 Z" fill="#4e342e" opacity="0.65" />
-                        <circle cx="100" cy="85" r="14" fill="#3e2723" opacity="0.75" />
-                      </g>
-                    </svg>
-
-                    {/* Reticle Bounding Box with Confidence Badge */}
-                    <div className="scanner-reticle-box">
-                      <div className="scanner-label-tag">
-                        <span>{activePreset.name}</span>
-                        <span className="confidence-badge">{activePreset.confidence} match</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Animated Laser Sweep */}
-                <div className="scanner-scanline" aria-hidden="true"></div>
-              </div>
-
-              {/* Action Bar (Analyze & Camera) */}
-              <div className="scanner-action-bar">
-                <button
-                  id="analyseBtn"
-                  type="button"
-                  className="btn-scan-main"
-                  onClick={handleLiveScan}
-                  disabled={isScanning}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  {isScanning ? 'Analyzing with Gemini AI...' : 'Analyze Item'}
-                </button>
-
-                <button
-                  id="cameraUploadBtn"
-                  type="button"
-                  className="btn-camera-snap"
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Upload photo from device or camera"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            {!previewUrl ? (
+              <div className="vf-empty">
+                <div className="vf-icon-wrap">
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#7ee08a"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                     <circle cx="12" cy="13" r="4" />
                   </svg>
-                </button>
+                </div>
+                <b>Tap to take or choose photo</b>
+                <small>Use camera or drag & drop image here</small>
               </div>
-
-              {statusText && (
-                <div className="status-msg" style={{ marginTop: '10px', fontSize: '13px', color: '#fbbf24' }}>
-                  {statusText}
-                </div>
-              )}
-            </article>
-
-            {/* Contamination Alert Banner (or Safety Guidance) */}
-            {activePreset.contaminationAlert && (
-              <aside
-                className={activePreset.contaminationAlert.isContaminated ? 'alert-contamination-card' : 'alert-clean-card'}
-                id="contaminationAlertBanner"
-                aria-live="polite"
-              >
-                <div className={activePreset.contaminationAlert.isContaminated ? 'alert-contamination-header' : 'alert-clean-header'}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                    <line x1="12" y1="9" x2="12" y2="13" />
-                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                  </svg>
-                  <span>((⚠️)) {activePreset.contaminationAlert.title}</span>
-                </div>
-                <p className={activePreset.contaminationAlert.isContaminated ? 'alert-contamination-desc' : 'alert-clean-desc'}>
-                  {activePreset.contaminationAlert.description}
-                </p>
-              </aside>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={previewUrl}
+                alt="Uploaded waste preview"
+                className="preview-img"
+              />
             )}
 
-            {/* Voice Control & AI Active Widget */}
-            <article className="voice-ai-card" id="voiceControlWidget">
-              <div className="voice-ai-status-row">
-                <div className="voice-status-pill">
-                  <span className="indicator-dot"></span>
-                  <span>AI Active | Voice Control: Enabled</span>
-                </div>
-              </div>
+            {/* Target Reticle Accents */}
+            <span className="c tl"></span>
+            <span className="c tr"></span>
+            <span className="c bl"></span>
+            <span className="c br"></span>
 
-              <div className="voice-ai-prompt">
-                Speak: &ldquo;How do I prep this?&rdquo;
-              </div>
+            {/* Glowing Laser Sweep */}
+            <div className="scanline"></div>
+          </div>
 
-              <div className="voice-mic-waveform-row">
+          <button
+            id="analyseBtn"
+            className="btn-primary"
+            disabled={isAnalyseDisabled}
+            onClick={handleScan}
+          >
+            {isScanning ? (
+              <>
+                <span className="status-spinner"></span>
+                Analyzing with Gemini...
+              </>
+            ) : (
+              'Check my item'
+            )}
+          </button>
+
+          <div className="status-bar" role="status" aria-live="polite">
+            {isScanning && <span className="status-spinner"></span>}
+            {statusText}
+          </div>
+
+          {/* HACKDAY FEATURE 1: QUICK-TEST DEMO SWAG CAROUSEL */}
+          <div className="quick-test-section">
+            <div className="quick-test-label">
+              <span>🎯 Hackday Quick-Test Carousel</span>
+              <span className="quick-test-badge">1-Click Live Demo</span>
+            </div>
+            <div className="quick-test-grid">
+              {QUICK_TEST_PRESETS.map((p) => (
                 <button
-                  id="voiceMicBtn"
+                  key={p.id}
                   type="button"
-                  className={`mic-action-btn ${isSpeaking ? 'active' : ''}`}
-                  onClick={handleVoiceSpeak}
-                  title="Click to hear disposal voice guidance"
-                  aria-label="Listen to disposal advice"
+                  className={`quick-test-btn ${activeQuickTest === p.id ? 'active' : ''}`}
+                  onClick={() => handleSelectQuickTest(p)}
+                  title={`Instant test: ${p.name}`}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                    <line x1="12" y1="19" x2="12" y2="22" />
-                  </svg>
+                  <span className="quick-test-emoji">{p.emoji}</span>
+                  <span className="quick-test-name">{p.name}</span>
+                  <span className={`quick-test-tag ${p.tag}`}>{p.tagLabel}</span>
                 </button>
+              ))}
+            </div>
+          </div>
+        </section>
 
-                <div className="waveform-bars" aria-hidden="true">
-                  {[12, 24, 18, 28, 16, 22, 10, 26, 14, 20, 8, 18, 25, 12, 22, 16].map((h, i) => (
-                    <span
-                      key={i}
-                      className={`waveform-bar ${isSpeaking ? 'active' : ''}`}
-                      style={{
-                        height: isSpeaking ? `${h}px` : '6px',
-                        animationDelay: `${i * 0.08}s`,
-                      }}
-                    ></span>
-                  ))}
-                </div>
+        {/* CLASSIFICATION RESULT CARD */}
+        {result && (
+          <section
+            ref={resultRef}
+            className="card result-card"
+            id="resultCard"
+            aria-live="polite"
+          >
+            {isSampleResult && (
+              <div className="sample-banner">
+                SAMPLE RESULT: Quick-Test / Demo preview
               </div>
-            </article>
+            )}
 
-            {/* 1-Click Demo Carousel */}
-            <div className="quick-test-section">
-              <div className="quick-test-header">
-                <span>🎯 Quick-Test Demo Items</span>
-                <span className="quick-test-badge">1-Click Live</span>
-              </div>
-              <div className="quick-test-scroller">
-                {DEMO_PRESETS.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    className={`quick-test-btn ${activePreset.id === p.id ? 'active' : ''}`}
-                    onClick={() => handleSelectPreset(p)}
-                  >
-                    <span>{p.emoji}</span>
-                    <span>{p.name}</span>
-                  </button>
-                ))}
+            <div className={`tagband ${activeCategory}`}>
+              <span className="hole"></span>
+              <div>
+                <small>Put it in</small>
+                <h3>{result.bin_name}</h3>
               </div>
             </div>
-          </section>
 
-          {/* -------------------------------------------------------
-             COLUMN 2: THE SUSTAINABILITY HUB
-             ------------------------------------------------------- */}
-          <section className="col-container col-sustainability" aria-labelledby="colHeaderSustainability">
-            <h2 id="colHeaderSustainability" className="col-header">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                <line x1="4" y1="22" x2="4" y2="15" />
-              </svg>
-              The Sustainability Hub
-            </h2>
+            <div className="rbody">
+              <dl>
+                <div className="r-grid">
+                  <dt>Detected Item</dt>
+                  <dd>
+                    <strong>{result.item_name}</strong>
+                  </dd>
+                </div>
+                <div className="r-grid">
+                  <dt>Why</dt>
+                  <dd>{result.explanation}</dd>
+                </div>
+                <div className="r-grid">
+                  <dt>Campus Rule</dt>
+                  <dd>{result.guidance}</dd>
+                </div>
+              </dl>
 
-            {/* 1. Dynamic Impact Translator */}
-            <article className="panel-card" id="impactTranslatorCard">
-              <div className="card-section-title">
-                <span>Dynamic Impact Translator</span>
-              </div>
-
-              <div className="impact-translator-grid">
-                <div className="impact-metric-pill">
-                  <div className="metric-icon co2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-                    </svg>
+              {/* HACKDAY FEATURE 2: MULTI-PART DISASSEMBLY GUIDE */}
+              {result.disassembly_steps && result.disassembly_steps.length > 0 && (
+                <div className="disassembly-guide">
+                  <div className="disassembly-title">
+                    <span>⚠️ Multi-Part Composite Item Detected</span>
                   </div>
-                  <div className="metric-value-block">
-                    <b>{activePreset.co2Saved}</b>
-                    <small>CO2e saved</small>
+                  <p className="disassembly-desc">
+                    Separate components before binning to prevent contaminating campus recycling streams:
+                  </p>
+                  <div className="disassembly-steps">
+                    {result.disassembly_steps.map((step, idx) => {
+                      const lowerBin = step.bin_name.toLowerCase();
+                      const binColor =
+                        lowerBin.includes('recycl') ? 'blue' :
+                        lowerBin.includes('organ') ? 'green' :
+                        lowerBin.includes('e-waste') || lowerBin.includes('hazard') ? 'red' :
+                        lowerBin.includes('gener') ? 'grey' : 'amber';
+                      return (
+                        <div key={idx} className="disassembly-step-card">
+                          <span className="disassembly-step-num">{idx + 1}</span>
+                          <div className="disassembly-step-info">
+                            <div className="disassembly-part-name">{step.part}</div>
+                            <div className="disassembly-action">{step.action}</div>
+                          </div>
+                          <span className={`disassembly-bin-badge ${binColor}`}>
+                            {step.bin_name}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
+              )}
 
-                <div className="impact-metric-pill">
-                  <div className="metric-icon energy">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                    </svg>
+              {/* HACKDAY FEATURE 3: ECO-IMPACT & CARBON SAVED */}
+              {result.eco_impact && (
+                <div className="eco-impact-card">
+                  <div className="eco-impact-header">
+                    <div className="eco-impact-title">
+                      <span>🌱 Environmental Savings</span>
+                    </div>
+                    <span className="eco-impact-score-pill">
+                      +{result.eco_impact.co2_saved_grams}g CO₂ Diverted
+                    </span>
                   </div>
-                  <div className="metric-value-block">
-                    <b>{activePreset.energyAvoided}</b>
-                    <small>avoided</small>
+                  <div className="eco-metrics-row">
+                    <div className="eco-metric-tile">
+                      <div className="eco-metric-val">+{result.eco_impact.co2_saved_grams}g</div>
+                      <div className="eco-metric-sub">Carbon Diverted</div>
+                    </div>
+                    <div className="eco-metric-tile">
+                      <div className="eco-metric-val">+{result.eco_impact.energy_saved_wh} Wh</div>
+                      <div className="eco-metric-sub">Clean Energy Equivalent</div>
+                    </div>
+                  </div>
+                  <div className="eco-equivalency-box">
+                    <span>⚡</span>
+                    <span>{result.eco_impact.equivalency}</span>
                   </div>
                 </div>
-              </div>
+              )}
 
-              <div className="impact-comparison-cards" style={{ marginTop: '12px' }}>
-                <div className="equiv-card">
-                  <div className="thumb-icon">📱</div>
-                  <span>{activePreset.phoneEquiv}</span>
-                </div>
-                <div className="equiv-card">
-                  <div className="thumb-icon">💡</div>
-                  <span>{activePreset.bulbEquiv}</span>
-                </div>
-              </div>
-            </article>
-
-            {/* 2. Local Drop-off Map */}
-            <article className="panel-card" id="localMapCard">
-              <div className="card-section-title">
-                <span>Local Drop-off Map</span>
-              </div>
-
-              <div className="map-panel">
-                {/* Stylized Vector Map Graphic with Campus Roads & Bins */}
-                <svg className="map-svg-canvas" viewBox="0 0 500 200" preserveAspectRatio="none">
-                  <rect width="500" height="200" fill="#14322b" />
-                  {/* Road Grid lines */}
-                  <path d="M 0 50 L 500 50 M 0 130 L 500 130 M 120 0 L 120 200 M 280 0 L 280 200 M 420 0 L 420 200" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-                  {/* Green park patches */}
-                  <rect x="135" y="10" width="130" height="35" rx="6" fill="#1b4339" />
-                  <rect x="295" y="60" width="115" height="60" rx="8" fill="#1e4d41" />
-                  <rect x="20" y="65" width="85" height="55" rx="6" fill="#1b4339" />
-                  {/* Compass/Location Pin Marker */}
-                  <g transform="translate(250, 75)">
-                    <circle cx="0" cy="0" r="14" fill="#ea580c" opacity="0.4" />
-                    <circle cx="0" cy="0" r="7" fill="#f97316" />
-                    <circle cx="0" cy="0" r="2.5" fill="#ffffff" />
-                  </g>
-                </svg>
-
-                <button
-                  id="quickNavBtn"
-                  type="button"
-                  className="map-quick-nav-btn"
-                  onClick={() => alert('Opening Campus Smart Bin Navigation: Heading to City Composting Center (1.2 miles away).')}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="3 11 22 2 13 21 11 13 3 11" />
-                  </svg>
-                  <span>Quick navigation</span>
-                </button>
-
-                <div className="map-location-bubble">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <span>Specialized e-waste/Soiled waste · City Composting Center - 1.2 miles away</span>
-                </div>
-              </div>
-            </article>
-
-            {/* 3. AI Upcycling Suggestions (3-Step Carousel) */}
-            <article className="panel-card" id="upcyclingCard">
-              <div className="upcycling-panel-header">
-                <span className="card-section-title" style={{ margin: 0 }}>
-                  AI Upcycling Suggestions (3-Step Carousel)
+              {/* CUMULATIVE STUDENT STREAK BANNER */}
+              <div className="cumulative-streak-bar">
+                <span>
+                  🏅 Student Sorting Streak: <strong className="streak-counter">{userStats.streak} items</strong>
+                </span>
+                <span>
+                  Total Saved: <strong style={{ color: 'var(--spruce)' }}>{userStats.totalCo2Grams}g CO₂</strong>
                 </span>
               </div>
-              <div className="upcycling-panel-subtitle">
-                Custom recipes generated for found items.
+
+              <div className="meta-chips">
+                <span className="chip">Category: {result.category}</span>
+                <span className="chip">Model: {result.model}</span>
+                <span className="chip">Latency: {result.latency_ms}ms</span>
+                {result.uncertainty_flag && (
+                  <span className="chip" style={{ background: '#ffe49e', color: '#684500' }}>
+                    Flagged: Uncertain
+                  </span>
+                )}
               </div>
 
-              <div className="upcycle-carousel-row">
-                <button
-                  id="upcyclePrevBtn"
-                  type="button"
-                  className="carousel-arrow-btn"
-                  onClick={prevUpcycleStep}
-                  title="Previous upcycling step"
-                  aria-label="Previous step"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="15 18 9 12 15 6" />
-                  </svg>
-                </button>
-
-                <div className="upcycle-card-parchment">
-                  <b>{activePreset.upcyclingSteps[upcycleStepIndex].title}</b>
-                  <p>{activePreset.upcyclingSteps[upcycleStepIndex].desc}</p>
+              {result.caution && (
+                <div className="notice warn">
+                  <strong>Caution:</strong> {result.caution}
                 </div>
+              )}
 
-                <button
-                  id="upcycleNextBtn"
-                  type="button"
-                  className="carousel-arrow-btn"
-                  onClick={nextUpcycleStep}
-                  title="Next upcycling step"
-                  aria-label="Next step"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
+              <div className="notice info">
+                AI provides campus sorting guidance, not a 100% guarantee. Always follow
+                labels on bins and ask waste station staff if unsure.
               </div>
-            </article>
+
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={handleReset}
+              >
+                Scan another item
+              </button>
+            </div>
           </section>
+        )}
 
-          {/* -------------------------------------------------------
-             COLUMN 3: GAMIFICATION & ALTERNATIVE SHOP
-             ------------------------------------------------------- */}
-          <section className="col-container col-gamification" aria-labelledby="colHeaderGamification">
-            <h2 id="colHeaderGamification" className="col-header">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-              </svg>
-              Gamification & Alternative Shop
-            </h2>
-
-            {/* 1. Eco-Swap Alternative Finder */}
-            <article className="panel-card" id="ecoSwapCard">
-              <div className="card-section-title">
-                <span>Eco-Swap Alternative Finder</span>
-              </div>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                Recommending products based on your scan history.
-              </p>
-
-              <div className="eco-swap-parchment-box">
-                <div className="eco-swap-title">{activePreset.ecoSwap.title}</div>
-                <div className="eco-swap-desc">{activePreset.ecoSwap.description}</div>
-                <div className="eco-swap-tags-wrap">
-                  {activePreset.ecoSwap.tags.map((tag, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      className="eco-swap-pill"
-                      onClick={() => alert(`Exploring sustainable eco-alternative: ${tag}`)}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </article>
-
-            {/* 2. Progress Scoreboard */}
-            <article className="panel-card" id="scoreboardCard">
-              <div className="progress-scoreboard-top">
-                <div className="xp-counter-number">
-                  <span>⚡</span>
-                  <span>{userScore.xp.toLocaleString()} XP</span>
-                </div>
-                <span className="user-level-tag">Level {userScore.level}</span>
-              </div>
-
-              {/* Golden Progress Bar */}
-              <div className="xp-progress-track">
-                <div className="xp-progress-fill" style={{ width: '78%' }}></div>
-              </div>
-
-              {/* Eco Streak Banner */}
-              <div className="eco-streak-banner">
-                <span>🔥</span>
-                <span>{userScore.streakDays}-day Eco Streak</span>
-              </div>
-
-              {/* Unlockable Badges */}
-              <div className="badges-gallery-title">Unlockable Badges:</div>
-              <div className="badges-gallery-row">
-                <div className="badge-item-card" id="badgeCompostHero" title="Compost Hero: Master of organic and soiled waste diversion">
-                  <div className="badge-shield unlocked">🪴</div>
-                  <span className="badge-name-label">Compost Hero</span>
-                </div>
-
-                <div className="badge-item-card" id="badgeMaterialMaster" title="Material Master: Separated 10+ composite packaging items">
-                  <div className="badge-shield unlocked">📦</div>
-                  <span className="badge-name-label">Material Master</span>
-                </div>
-
-                <div className="badge-item-card" id="badgeSpecialist" title="Specialist: 5,000+ XP milestone reached">
-                  <div className="badge-shield unlocked">🎖️</div>
-                  <span className="badge-name-label">Specialist</span>
-                </div>
-              </div>
-            </article>
-
-            {/* Composite Item Disassembly Guide (if detected) */}
-            {scanResult?.disassembly_steps && scanResult.disassembly_steps.length > 0 && (
-              <article className="disassembly-guide-box" id="disassemblyGuide">
-                <div className="disassembly-guide-title">
-                  <span>⚠️ Multi-Part Component Separation</span>
-                </div>
-                {scanResult.disassembly_steps.map((step, idx) => {
-                  const bName = step.bin_name.toLowerCase();
-                  const badgeColor =
-                    bName.includes('recycl') ? 'blue' :
-                    bName.includes('organ') || bName.includes('compost') ? 'green' :
-                    bName.includes('hazard') || bName.includes('e-waste') ? 'red' : 'grey';
-                  return (
-                    <div key={idx} className="disassembly-step-row">
-                      <div>
-                        <strong>{step.part}:</strong> {step.action}
-                      </div>
-                      <span className={`bin-badge ${badgeColor}`}>{step.bin_name}</span>
-                    </div>
-                  );
-                })}
-              </article>
-            )}
-          </section>
-        </main>
-
-        {/* =========================================================
-           FOOTER
-           ========================================================= */}
-        <footer className="footer-bar">
-          <div>
-            EcoVision Mini AI · Campus Sustainability Hub · Powered by Gemini 3 Flash
+        {/* BACKEND API & DIAGNOSTICS */}
+        <details className="setup" open>
+          <summary>Backend API & System Diagnostics</summary>
+          <p className="sub" style={{ marginTop: '10px', marginBottom: '4px' }}>
+            {apiStatusText}
+          </p>
+          <p className="sub" style={{ margin: '4px 0 10px' }}>
+            {statsText}
+          </p>
+          <div className="api-links">
+            <a href="/api/health" target="_blank" rel="noopener noreferrer">
+              GET /api/health
+            </a>
+            <a href="/api/rules" target="_blank" rel="noopener noreferrer">
+              GET /api/rules
+            </a>
+            <a href="/api/stats" target="_blank" rel="noopener noreferrer">
+              GET /api/stats
+            </a>
+            <span>POST /api/analyse (Scanner endpoint)</span>
           </div>
-          <nav className="footer-nav" aria-label="Footer Navigation">
-            <a href="/api/health" target="_blank" rel="noopener noreferrer">Health</a>
-            <a href="/api/rules" target="_blank" rel="noopener noreferrer">Campus Rules</a>
-            <a href="/api/stats" target="_blank" rel="noopener noreferrer">API Stats</a>
-          </nav>
+          <button
+            type="button"
+            className="btn-refresh"
+            onClick={connectApi}
+          >
+            Reconnect / Refresh stats
+          </button>
+        </details>
+
+        {/* DEMO CONTROLS */}
+        <details className="setup">
+          <summary>Demo Options & Security</summary>
+          <label className="chk">
+            <input
+              type="checkbox"
+              checked={sampleMode}
+              onChange={(e) => setSampleMode(e.target.checked)}
+            />
+            <span>
+              <strong>Sample mode:</strong> Simulates instant offline classification for UI testing.
+            </span>
+          </label>
+          <p className="sub" style={{ marginTop: '10px', marginBottom: '0' }}>
+            Security Hardening: The Gemini API key is strictly maintained on the server
+            side (in <code>.env.local</code>) and is never transmitted to the browser.
+          </p>
+        </details>
+
+        <footer>
+          EcoVision Mini AI &middot; Next.js 15 Native Edition &middot; Campus Sustainability
         </footer>
-      </div>
+      </main>
     </>
   );
 }
