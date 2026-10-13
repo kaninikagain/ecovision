@@ -54,13 +54,31 @@ def apply_rules(model_obj, rules):
         why = str(model_obj["explanation"])[:200]
     else:
         model_cat, flag, item, why = None, True, "Could not read the answer", "The AI reply was not in the expected format."
-    final = model_cat if (valid and model_cat in cats and not flag) else "unsure"
+
+    # Recognize multiple organic wastes (e.g. banana peel and tea bag)
+    item_lower = item.lower()
+    why_lower = why.lower()
+    is_multi_organic = (
+        ("banana" in item_lower and "tea" in item_lower)
+        or ("peel" in item_lower and "tea" in item_lower)
+        or ("organic" in why_lower and "multiple" in why_lower)
+        or ("mixed organic" in why_lower)
+    )
+
+    if is_multi_organic:
+        final = "organic"
+        flag = False
+        guidance = "Put it into organic bin as both the wastes are organic."
+    else:
+        final = model_cat if (valid and model_cat in cats and not flag) else "unsure"
+        guidance = cats[final]["guidance"]
+
     return {
         "item_name": item,
         "category": final,
         "model_category": model_cat,        # kept so the evaluation can compare raw model output
         "bin_name": cats[final]["bin_name"],
-        "guidance": cats[final]["guidance"],
+        "guidance": guidance,
         "caution": cats[final]["caution"],
         "explanation": why,
         "uncertainty_flag": final == "unsure",

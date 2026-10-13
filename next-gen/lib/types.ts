@@ -17,10 +17,18 @@ export interface DisassemblyStep {
   action: string;
 }
 
+export interface EcoBreakdownItem {
+  item: string;
+  co2_g: number;
+  wh: number;
+}
+
 export interface EcoImpact {
   co2_saved_grams: number;
   energy_saved_wh: number;
   equivalency: string;
+  summation_note?: string;
+  items_breakdown?: EcoBreakdownItem[];
 }
 
 export interface ModelWastePrediction {

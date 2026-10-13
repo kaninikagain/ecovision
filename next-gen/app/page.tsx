@@ -131,7 +131,7 @@ export default function Home() {
         category: 'organic' as WasteCategory,
         model_category: 'organic',
         bin_name: 'Organic bin',
-        guidance: 'Put it in the campus compost or organic food-waste bin.',
+        guidance: 'Put it into organic bin.',
         caution: 'Remove any fruit brand stickers or plastic wrap before composting.',
         explanation: 'Fast-decomposing organic matter rich in potassium and nitrogen.',
         uncertainty_flag: false,
@@ -143,6 +143,50 @@ export default function Home() {
           co2_saved_grams: 40,
           energy_saved_wh: 50,
           equivalency: 'Prevents 40g methane generation in local landfills',
+        },
+      },
+    },
+    {
+      id: 'banana-tea',
+      name: 'Banana Peel & Tea Bag',
+      emoji: '🍌🍵',
+      tag: 'organic',
+      tagLabel: 'Dual Organic',
+      svgColor: '#15803d',
+      result: {
+        item_name: 'banana peel and tea bag',
+        category: 'organic' as WasteCategory,
+        model_category: 'organic',
+        bin_name: 'Organic bin',
+        guidance: 'Put it into organic bin as both the wastes are organic.',
+        caution: 'Remove any staples, synthetic tags, or plastic stickers before binning.',
+        explanation: 'Both banana peel and tea bag are compostable organic waste.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-3-flash-preview',
+        provider: 'gemini',
+        latency_ms: 275,
+        disassembly_steps: [
+          {
+            part: 'Banana peel',
+            bin_name: 'Organic bin',
+            action: 'Place in organic bin for composting',
+          },
+          {
+            part: 'Tea bag',
+            bin_name: 'Organic bin',
+            action: 'Remove staple if present, place in organic bin',
+          },
+        ],
+        eco_impact: {
+          co2_saved_grams: 65,
+          energy_saved_wh: 100,
+          equivalency: 'Summation of 2 organic wastes: Banana peel (40g CO₂, 60 Wh) + Tea bag (25g CO₂, 40 Wh)',
+          summation_note: 'Summation of 2 organic wastes combined',
+          items_breakdown: [
+            { item: 'Banana peel', co2_g: 40, wh: 60 },
+            { item: 'Tea bag', co2_g: 25, wh: 40 },
+          ],
         },
       },
     },
@@ -756,13 +800,31 @@ export default function Home() {
                   <div className="eco-metrics-row">
                     <div className="eco-metric-tile">
                       <div className="eco-metric-val">+{result.eco_impact.co2_saved_grams}g</div>
-                      <div className="eco-metric-sub">Carbon Diverted</div>
+                      <div className="eco-metric-sub">
+                        {result.eco_impact.summation_note ? 'Total Carbon Diverted (Sum)' : 'Carbon Diverted'}
+                      </div>
                     </div>
                     <div className="eco-metric-tile">
                       <div className="eco-metric-val">+{result.eco_impact.energy_saved_wh} Wh</div>
-                      <div className="eco-metric-sub">Clean Energy Equivalent</div>
+                      <div className="eco-metric-sub">
+                        {result.eco_impact.summation_note ? 'Total Clean Energy (Sum)' : 'Clean Energy Equivalent'}
+                      </div>
                     </div>
                   </div>
+
+                  {result.eco_impact.items_breakdown && result.eco_impact.items_breakdown.length > 0 && (
+                    <div className="eco-breakdown-row">
+                      <div className="eco-breakdown-title">Summation of Waste Savings:</div>
+                      <div className="eco-breakdown-chips">
+                        {result.eco_impact.items_breakdown.map((item, idx) => (
+                          <span key={idx} className="eco-breakdown-chip">
+                            <strong>{item.item}:</strong> +{item.co2_g}g CO₂ ({item.wh} Wh)
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="eco-equivalency-box">
                     <span>⚡</span>
                     <span>{result.eco_impact.equivalency}</span>

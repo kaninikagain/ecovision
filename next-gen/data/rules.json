@@ -8,8 +8,8 @@
     },
     "organic": {
       "bin_name": "Organic bin",
-      "guidance": "Put it in the organic / food-waste bin if your campus has one.",
-      "caution": "Check that no packaging is mixed in."
+      "guidance": "Put it into organic bin.",
+      "caution": "Check that no packaging or plastic stickers are mixed in."
     },
     "hazardous": {
       "bin_name": "E-waste point",

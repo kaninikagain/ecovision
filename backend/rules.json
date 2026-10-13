@@ -2,7 +2,7 @@
   "campus": "YOUR CAMPUS NAME (Trisha: replace every guidance line with the campus-approved wording)",
   "categories": {
     "recyclable": {"bin_name": "Recycling bin", "guidance": "Empty and rinse it, then put it in the campus recycling bin.", "caution": "Greasy or wet items may not qualify."},
-    "organic":    {"bin_name": "Organic bin", "guidance": "Put it in the organic / food-waste bin if your campus has one.", "caution": "Check that no packaging is mixed in."},
+    "organic":    {"bin_name": "Organic bin", "guidance": "Put it into organic bin.", "caution": "Check that no packaging or plastic stickers are mixed in."},
     "hazardous":  {"bin_name": "E-waste point", "guidance": "Do not put it in general waste. Hand it over at the designated e-waste / battery collection point (batteries, mercury/CFL tubes, and electronics).", "caution": "Safety note: batteries, fluorescent/CFL tubes (mercury), and electronics are hazardous. (Note: incandescent, halogen, and LED bulbs are non-hazardous general trash)."},
     "general":    {"bin_name": "Non-recyclable general waste", "guidance": "Put it in the regular non-hazardous general waste (trash) bin.", "caution": "Could it be reused or reduced next time?"},
     "unsure":     {"bin_name": "Check first", "guidance": "Not sure. Take a clearer photo of one item or ask campus staff (check local rule).", "caution": "The system is not sure. Do not guess."}
