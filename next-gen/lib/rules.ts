@@ -49,8 +49,8 @@ export function loadRules(): RulesData {
       },
       general: {
         bin_name: 'Non-recyclable general waste',
-        guidance: 'Put it in the regular non-hazardous general waste (trash) bin. For incandescent, halogen, or LED bulbs and broken ceramics/glass, wrap securely in paper, plastic, or a cardboard box to prevent cuts. Do not put in glass recycling.',
-        caution: 'Incandescent, halogen, and LED bulbs contain no toxic mercury and belong in regular trash—never in glass recycling. Broken ceramics also belong in general waste.',
+        guidance: 'Put it in the regular non-hazardous general waste (trash) bin.',
+        caution: 'Could it be reused or reduced next time?',
       },
       unsure: {
         bin_name: 'Check first',
