@@ -1,0 +1,25 @@
+{
+  "name": "ecovision-mini-ai-next-gen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EcoVision Mini AI - Campus Waste Sorting AI Next.js Application",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@google/genai": "2.28.0",
+    "@google/generative-ai": "0.24.1",
+    "next": "15.5.27",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.16.10",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "typescript": "5.6.2"
+  }
+}

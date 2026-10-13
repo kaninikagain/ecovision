@@ -1,0 +1,46 @@
+# Environment variables & secrets (CRITICAL: Never commit API keys)
+.env
+.env.*
+!.env.example
+*.env.local
+.env.local
+
+# Python virtual environments & packages
+venv/
+.venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Node.js & Next.js
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+**/out/
+.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Telemetry, cache & scan logs
+data/scans.jsonl
+next-gen/data/scans.jsonl
+*.log
+
+# Evaluation files
+evaluation/results.csv
+evaluation/images/*
+!evaluation/images/.gitkeep
+
+# IDEs & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

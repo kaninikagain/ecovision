@@ -1,0 +1,7 @@
+filename,expected_category,difficulty
+bottle_01.jpg,recyclable,single_clean
+banana_peel_01.jpg,organic,single_clean
+battery_01.jpg,hazardous,single_clean
+chip_packet_01.jpg,general,single_clean
+paper_cup_01.jpg,unsure,mixed_material
+desk_clutter_01.jpg,unsure,multi_item
