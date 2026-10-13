@@ -172,6 +172,72 @@ export function applyRules(
 
   const categoryRule = cats[finalCategory] || cats['unsure'];
 
+  // Process disassembly steps
+  let disassemblySteps = undefined;
+  if (modelObj && Array.isArray(modelObj.disassembly_steps) && modelObj.disassembly_steps.length > 0) {
+    disassemblySteps = modelObj.disassembly_steps
+      .filter((s: any) => s && typeof s.part === 'string')
+      .map((s: any) => ({
+        part: String(s.part).slice(0, 50),
+        bin_name: String(s.bin_name || 'Check first').slice(0, 50),
+        action: String(s.action || 'Separate').slice(0, 80),
+      }));
+  }
+
+  // Calculate or enrich Eco-Impact metrics
+  let ecoImpact = {
+    co2_saved_grams: 0,
+    energy_saved_wh: 0,
+    equivalency: 'Awaiting proper classification',
+  };
+
+  if (modelObj && modelObj.eco_impact && typeof modelObj.eco_impact.co2_saved_grams === 'number') {
+    ecoImpact = {
+      co2_saved_grams: Math.max(0, Math.round(modelObj.eco_impact.co2_saved_grams)),
+      energy_saved_wh: Math.max(0, Math.round(modelObj.eco_impact.energy_saved_wh || modelObj.eco_impact.co2_saved_grams * 1.6)),
+      equivalency: String(modelObj.eco_impact.equivalency || 'Diverts campus waste emissions').slice(0, 80),
+    };
+  } else {
+    // Standard ESG benchmarks by category
+    switch (finalCategory) {
+      case 'recyclable':
+        ecoImpact = {
+          co2_saved_grams: 65,
+          energy_saved_wh: 120,
+          equivalency: 'Powers a laptop for 2.5 hours',
+        };
+        break;
+      case 'organic':
+        ecoImpact = {
+          co2_saved_grams: 35,
+          energy_saved_wh: 45,
+          equivalency: 'Prevents 35g methane emissions in campus landfills',
+        };
+        break;
+      case 'hazardous':
+        ecoImpact = {
+          co2_saved_grams: 120,
+          energy_saved_wh: 220,
+          equivalency: 'Prevents toxic lithium & lead from entering soil',
+        };
+        break;
+      case 'general':
+        ecoImpact = {
+          co2_saved_grams: 0,
+          energy_saved_wh: 0,
+          equivalency: 'Properly routed to general landfill stream',
+        };
+        break;
+      default:
+        ecoImpact = {
+          co2_saved_grams: 0,
+          energy_saved_wh: 0,
+          equivalency: 'Verify sorting before campus disposal',
+        };
+        break;
+    }
+  }
+
   return {
     item_name: item,
     category: finalCategory,
@@ -185,5 +251,7 @@ export function applyRules(
     model: extra.model || 'gemma-4-31b-it',
     provider: extra.provider || 'gemini',
     latency_ms: extra.latency_ms || 0,
+    disassembly_steps: disassemblySteps,
+    eco_impact: ecoImpact,
   };
 }

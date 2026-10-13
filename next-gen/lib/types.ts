@@ -11,11 +11,25 @@ export interface RulesData {
   categories: Record<WasteCategory, CategoryRule>;
 }
 
+export interface DisassemblyStep {
+  part: string;
+  bin_name: string;
+  action: string;
+}
+
+export interface EcoImpact {
+  co2_saved_grams: number;
+  energy_saved_wh: number;
+  equivalency: string;
+}
+
 export interface ModelWastePrediction {
   item_name: string;
   category: WasteCategory;
   explanation: string;
   uncertainty_flag: boolean | string;
+  disassembly_steps?: DisassemblyStep[];
+  eco_impact?: EcoImpact;
 }
 
 export interface AnalyseRequestBody {
@@ -36,6 +50,8 @@ export interface AnalyseResponse {
   model: string;
   provider: string;
   latency_ms: number;
+  disassembly_steps?: DisassemblyStep[];
+  eco_impact: EcoImpact;
 }
 
 export interface HealthResponse {
