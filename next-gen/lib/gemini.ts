@@ -22,10 +22,9 @@ const preferredModel = (envModel && !DEPRECATED_MODELS.has(envModel))
   : 'gemini-3-flash-preview';
 
 const CANDIDATE_MODELS = Array.from(new Set([
-  preferredModel,
   'gemini-3-flash-preview',
-  'gemini-flash-latest',
-]));
+  preferredModel,
+].filter(m => m !== 'gemini-flash-latest')));
 
 const MODEL_NAME = CANDIDATE_MODELS[0];
 
