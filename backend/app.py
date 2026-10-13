@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
 PROVIDER = os.getenv("PROVIDER", "gemini")                     # "gemini" (hosted) or "ollama" (local open weights)
-MODEL = os.getenv("MODEL_NAME", "gemma-4-31b-it")              # also listed in Google docs: gemma-4-26b-a4b-it
+MODEL = os.getenv("MODEL_NAME", "gemini-3-flash-preview")
 API_KEY = os.getenv("GEMINI_API_KEY", "")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 MAX_BYTES = int(os.getenv("MAX_IMAGE_MB", "5")) * 1024 * 1024
@@ -28,7 +28,7 @@ RULES = load_rules(ROOT / "backend" / "rules.json")
 PROMPT = """You are a waste-sorting assistant for a college campus.
 Look at the photo and answer ONLY with JSON in exactly this format, with no extra text:
 {"item_name":"...","category":"recyclable|organic|hazardous|general|unsure","explanation":"one short sentence","uncertainty_flag":true|false}
-Use "hazardous" for batteries, bulbs, chargers and small electronics. Use "general" for chip packets, wrappers, tissues and broken ceramics.
+Use "hazardous" for batteries, bulbs, chargers and small electronics. Use "general" for chip packets, wrappers, tissues, ceramics, porcelain, mugs, and broken crockery. Broken ceramics and mugs are strictly non-recyclable general waste.
 Rules: if the image is blurry, shows several mixed items, or you are not sure, use category "unsure" and uncertainty_flag true.
 Never invent facts. Keep the explanation under 20 words."""
 

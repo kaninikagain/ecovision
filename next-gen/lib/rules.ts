@@ -48,9 +48,9 @@ export function loadRules(): RulesData {
         caution: 'Safety note: batteries, bulbs and electronics can be harmful. Keep them out of general waste.',
       },
       general: {
-        bin_name: 'General waste',
-        guidance: 'Put it in the general waste bin.',
-        caution: 'Could it be reused or reduced next time?',
+        bin_name: 'Non-recyclable general waste',
+        guidance: 'Put it in the non-recyclable general waste bin. For broken items (broken ceramics, mugs, porcelain, or glass shards), wrap safely in newspaper or cardboard before binning to protect sanitation staff.',
+        caution: 'Broken ceramics and mugs cannot be melted with container glass in recycling furnaces and must go to general waste.',
       },
       unsure: {
         bin_name: 'Check first',

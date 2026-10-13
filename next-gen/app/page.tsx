@@ -200,6 +200,33 @@ export default function Home() {
         },
       },
     },
+    {
+      id: 'broken-mug',
+      name: 'Broken Ceramic Mug',
+      emoji: '☕',
+      tag: 'general',
+      tagLabel: 'Non-Recyclable',
+      svgColor: '#78716c',
+      result: {
+        item_name: 'Broken Ceramic Mug (Crockery Shards)',
+        category: 'general' as WasteCategory,
+        model_category: 'general',
+        bin_name: 'Non-recyclable general waste',
+        guidance: 'Put it in the non-recyclable general waste bin. For broken items (broken ceramics, mugs, porcelain, or glass shards), wrap safely in newspaper or cardboard before binning to protect sanitation staff.',
+        caution: 'Broken ceramics and mugs cannot be melted with container glass in recycling furnaces and must go to general waste.',
+        explanation: 'Ceramics have high melting points that ruin glass recycling and broken shards pose a cut hazard.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-3-flash-preview',
+        provider: 'gemini',
+        latency_ms: 310,
+        eco_impact: {
+          co2_saved_grams: 0,
+          energy_saved_wh: 0,
+          equivalency: 'Wrapped securely to protect campus sanitation staff from injuries',
+        },
+      },
+    },
   ];
 
   const handleSelectQuickTest = (preset: typeof QUICK_TEST_PRESETS[0]) => {
