@@ -3,8 +3,8 @@
   "categories": {
     "recyclable": {"bin_name": "Recycling bin", "guidance": "Empty and rinse it, then put it in the campus recycling bin.", "caution": "Greasy or wet items may not qualify."},
     "organic":    {"bin_name": "Organic bin", "guidance": "Put it in the organic / food-waste bin if your campus has one.", "caution": "Check that no packaging is mixed in."},
-    "hazardous":  {"bin_name": "E-waste point", "guidance": "Do not put it in general waste. Hand it over at the designated e-waste / battery collection point.", "caution": "Safety note: batteries, bulbs and electronics can be harmful. Keep them out of general waste."},
-    "general":    {"bin_name": "Non-recyclable general waste", "guidance": "Put it in the non-recyclable general waste bin. For broken items (broken ceramics, mugs, porcelain, or glass shards), wrap safely in newspaper or cardboard before binning to protect sanitation staff.", "caution": "Broken ceramics and mugs cannot be melted with container glass in recycling furnaces and must go to general waste."},
+    "hazardous":  {"bin_name": "E-waste point", "guidance": "Do not put it in general waste. Hand it over at the designated e-waste / battery collection point (batteries, mercury/CFL tubes, and electronics).", "caution": "Safety note: batteries, fluorescent/CFL tubes (mercury), and electronics are hazardous. (Note: incandescent, halogen, and LED bulbs are non-hazardous general trash)."},
+    "general":    {"bin_name": "Non-recyclable general waste", "guidance": "Put it in the regular non-hazardous general waste (trash) bin. For incandescent, halogen, or LED bulbs and broken ceramics/glass, wrap securely in paper, plastic, or a cardboard box to prevent cuts. Do not put in glass recycling.", "caution": "Incandescent, halogen, and LED bulbs contain no toxic mercury and belong in regular trash—never in glass recycling. Broken ceramics also belong in general waste."},
     "unsure":     {"bin_name": "Check first", "guidance": "Not sure. Take a clearer photo of one item or ask campus staff (check local rule).", "caution": "The system is not sure. Do not guess."}
   }
 }

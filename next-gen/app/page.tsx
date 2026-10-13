@@ -227,6 +227,40 @@ export default function Home() {
         },
       },
     },
+    {
+      id: 'light-bulb',
+      name: 'Incandescent / LED Bulb',
+      emoji: '💡',
+      tag: 'general',
+      tagLabel: 'Non-Hazardous Trash',
+      svgColor: '#eab308',
+      result: {
+        item_name: 'Incandescent Light Bulb',
+        category: 'general' as WasteCategory,
+        model_category: 'general',
+        bin_name: 'Non-recyclable general waste',
+        guidance: 'Wrap securely in paper, plastic, or a cardboard box and place in the regular trash bin to prevent cuts. Do not put in the glass recycling bin.',
+        caution: 'Incandescent, halogen, and LED bulbs do not contain toxic mercury and are regular non-hazardous waste. Never put them in glass recycling bins.',
+        explanation: 'Contains no toxic mercury; classified as regular household trash. Heat-treated glass ruins glass recycling.',
+        uncertainty_flag: false,
+        valid_json: true,
+        model: 'gemini-3-flash-preview',
+        provider: 'gemini',
+        latency_ms: 290,
+        disassembly_steps: [
+          {
+            part: 'Glass Bulb Enclosure',
+            bin_name: 'General waste bin',
+            action: 'Wrap securely in paper or cardboard box before binning to prevent sharp cut hazards',
+          },
+        ],
+        eco_impact: {
+          co2_saved_grams: 0,
+          energy_saved_wh: 0,
+          equivalency: 'Wrapped securely to protect campus sanitation workers from glass lacerations',
+        },
+      },
+    },
   ];
 
   const handleSelectQuickTest = (preset: typeof QUICK_TEST_PRESETS[0]) => {

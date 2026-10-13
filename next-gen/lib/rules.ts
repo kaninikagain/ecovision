@@ -44,13 +44,13 @@ export function loadRules(): RulesData {
       },
       hazardous: {
         bin_name: 'E-waste point',
-        guidance: 'Do not put it in general waste. Hand it over at the designated e-waste / battery collection point.',
-        caution: 'Safety note: batteries, bulbs and electronics can be harmful. Keep them out of general waste.',
+        guidance: 'Do not put it in general waste. Hand it over at the designated e-waste / battery collection point (batteries, mercury/CFL tubes, and electronics).',
+        caution: 'Safety note: batteries, fluorescent/CFL tubes (mercury), and electronics are hazardous. (Note: incandescent, halogen, and LED bulbs are non-hazardous general trash).',
       },
       general: {
         bin_name: 'Non-recyclable general waste',
-        guidance: 'Put it in the non-recyclable general waste bin. For broken items (broken ceramics, mugs, porcelain, or glass shards), wrap safely in newspaper or cardboard before binning to protect sanitation staff.',
-        caution: 'Broken ceramics and mugs cannot be melted with container glass in recycling furnaces and must go to general waste.',
+        guidance: 'Put it in the regular non-hazardous general waste (trash) bin. For incandescent, halogen, or LED bulbs and broken ceramics/glass, wrap securely in paper, plastic, or a cardboard box to prevent cuts. Do not put in glass recycling.',
+        caution: 'Incandescent, halogen, and LED bulbs contain no toxic mercury and belong in regular trash—never in glass recycling. Broken ceramics also belong in general waste.',
       },
       unsure: {
         bin_name: 'Check first',
