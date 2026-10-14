@@ -26,6 +26,13 @@
 *.tsbuildinfo
 next-env.d.ts
 
+
+.test-*
+.test-profile-upload/
+.test-profile-waste/
+.test-profile-window/
+
+
 # Debug logs
 npm-debug.log*
 yarn-debug.log*

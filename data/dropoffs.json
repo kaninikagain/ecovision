@@ -1,0 +1,112 @@
+[
+  {
+    "id": "dropoff-1",
+    "name": "City Composting Center",
+    "category": "Specialized e-waste/Solled wastes",
+    "lat": 37.7600,
+    "lng": -122.4100,
+    "types": ["compost", "e-waste", "recycling"],
+    "address": "500 Tunnel Ave, Recology Facility",
+    "hours": "Mon-Sat 8:00 AM - 4:30 PM",
+    "notes": "Accepts greasy pizza boxes, food-soiled paper, compost, and electronic waste."
+  },
+  {
+    "id": "dropoff-2",
+    "name": "Metro Materials Recovery Facility",
+    "category": "Clean Recyclables Sorting Center",
+    "lat": 37.7833,
+    "lng": -122.4167,
+    "types": ["recycling", "glass", "cardboard"],
+    "address": "250 7th Street",
+    "hours": "Daily 7:00 AM - 6:00 PM",
+    "notes": "Accepts clean cardboard, paper, PET bottles, aluminum, and glass bottles."
+  },
+  {
+    "id": "dropoff-3",
+    "name": "Community E-Waste & Battery Depot",
+    "category": "Hazardous & Battery Collection",
+    "lat": 37.7650,
+    "lng": -122.4200,
+    "types": ["e-waste", "hazardous", "battery"],
+    "address": "1300 Folsom St",
+    "hours": "Tue-Sun 9:00 AM - 5:00 PM",
+    "notes": "Certified R2 electronics recycler. Free disposal for lithium batteries and electronics."
+  },
+  {
+    "id": "dropoff-4",
+    "name": "Green Earth Bottle & Glass Return",
+    "category": "CRV Redemption & Glass Depot",
+    "lat": 37.7550,
+    "lng": -122.4180,
+    "types": ["glass", "recycling"],
+    "address": "1800 Mission St",
+    "hours": "Mon-Fri 8:30 AM - 5:00 PM",
+    "notes": "Cash redemption for CRV glass and beverage cans."
+  },
+  {
+    "id": "dropoff-5",
+    "name": "Bayview Scrap Metal & Aluminum Center",
+    "category": "Metal & Scrap Recovery",
+    "lat": 37.7420,
+    "lng": -122.3900,
+    "types": ["recycling", "metal"],
+    "address": "1398 Evans Ave",
+    "hours": "Mon-Sat 7:30 AM - 4:00 PM",
+    "notes": "Accepts aluminum, copper, steel, and food tin cans."
+  },
+  {
+    "id": "dropoff-6",
+    "name": "Mission Textile & Clothing Thrift Drop",
+    "category": "Textile Re-wear & Fiber Sorting",
+    "lat": 37.7580,
+    "lng": -122.4210,
+    "types": ["textile"],
+    "address": "1548 Valencia St",
+    "hours": "Daily 10:00 AM - 7:00 PM",
+    "notes": "Accepts worn clothing, curtains, footwear, and scraps for fabric downcycling."
+  },
+  {
+    "id": "dropoff-7",
+    "name": "Sunset District Community Garden Compost Hub",
+    "category": "Community Organics & Food Waste",
+    "lat": 37.7510,
+    "lng": -122.4900,
+    "types": ["compost"],
+    "address": "1850 37th Ave",
+    "hours": "Wed, Sat & Sun 9:00 AM - 2:00 PM",
+    "notes": "Free public drop-off for kitchen scraps, coffee grounds, and soiled unbleached paper."
+  },
+  {
+    "id": "dropoff-8",
+    "name": "Downtown Household Hazardous Waste Depot",
+    "category": "Hazardous Waste & Chemical Care",
+    "lat": 37.7300,
+    "lng": -122.3820,
+    "types": ["hazardous", "battery"],
+    "address": "501 Tunnel Ave Bldg 10",
+    "hours": "Thu-Sat 8:00 AM - 4:00 PM",
+    "notes": "Safe disposal of household paints, solvents, electronics, and rechargeable cells."
+  },
+  {
+    "id": "dropoff-9",
+    "name": "Potrero Hill Paper & Cardboard Baler",
+    "category": "Paper & Corrugated Bulk Station",
+    "lat": 37.7560,
+    "lng": -122.3980,
+    "types": ["recycling", "cardboard"],
+    "address": "901 Cesar Chavez St",
+    "hours": "Mon-Fri 7:00 AM - 5:00 PM",
+    "notes": "Bulk commercial and residential cardboard drop-off."
+  },
+  {
+    "id": "dropoff-10",
+    "name": "Marina Green Plastic Return Kiosk",
+    "category": "Rigid & Film Plastic Collection",
+    "lat": 37.8050,
+    "lng": -122.4400,
+    "types": ["recycling"],
+    "address": "200 Marina Blvd",
+    "hours": "24/7 Automated Receptacle",
+    "notes": "Accepts clean HDPE jugs, PET containers, and clean stretch film packaging."
+  }
+]

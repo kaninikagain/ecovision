@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 160" fill="none">
+  <!-- Small side leaf cluster peeking onto far right edge -->
+  <g opacity="0.85" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.4))">
+    <path d="M70 40 C 45 50, 25 70, 10 95 C 32 90, 52 75, 70 40 Z" fill="#2E7D32"/>
+    <path d="M70 40 C 48 58, 32 75, 10 95" stroke="#1B5E20" stroke-width="1.5"/>
+
+    <path d="M70 85 C 50 95, 35 112, 25 140 C 42 135, 58 120, 70 85 Z" fill="#43A047"/>
+    <path d="M70 85 C 52 102, 40 120, 25 140" stroke="#2E7D32" stroke-width="1.5"/>
+  </g>
+</svg>

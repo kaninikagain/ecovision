@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="../config.local.js"></script>
+<script src="../config.js"></script>
 <style>
 :root{
   --spruce:#0f3a33; --spruce2:#17524a; --moss:#3c8d2f; --bin-blue:#1f5fa8; --bin-grey:#3a4147;
@@ -44,34 +46,112 @@ main{max-width:680px;margin:-92px auto 0;padding:0 14px 40px;position:relative}
 
 .viewfinder{
   position:relative;display:flex;align-items:center;justify-content:center;text-align:center;
-  min-height:240px;border-radius:16px;overflow:hidden;cursor:pointer;
+  min-height:280px;max-height:420px;border-radius:16px;overflow:hidden;
   background:
     radial-gradient(circle at 30% 20%, #2b4d46, transparent 55%),
     linear-gradient(145deg,#1c3a35,#0d2420);
   color:#bfd8cd;
 }
-.viewfinder:focus-within{outline:3px solid var(--bin-blue);outline-offset:2px}
-.viewfinder input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.vf-empty{pointer-events:none;padding:20px}
-.vf-empty b{display:block;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:19px;margin:8px 0 2px}
-.vf-empty small{font-size:13px}
-#preview{display:none;width:100%;max-height:340px;object-fit:cover;pointer-events:none}
-.c{position:absolute;width:26px;height:26px;border:3px solid #7ee08a;pointer-events:none}
+#cameraVideo{width:100%;height:100%;min-height:280px;max-height:420px;object-fit:cover;display:block;border-radius:16px}
+#preview{display:none;width:100%;min-height:280px;max-height:420px;object-fit:cover;border-radius:16px}
+.scan-header-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.live-pill{display:inline-flex;align-items:center;gap:6px;background:#e6f7ec;color:#17682d;border:1px solid #95deb1;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.5px}
+.live-pill .dot{width:8px;height:8px;border-radius:50%;background:#27ae60;box-shadow:0 0 8px #27ae60;animation:pulseDot 1.4s ease-in-out infinite}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+
+.camera-toolbar{display:flex;gap:10px;margin-bottom:12px;align-items:center}
+.camera-select-wrap{flex:1;position:relative;display:flex;align-items:center;background:#f4f7f5;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;transition:border-color .15s}
+.camera-select-wrap:focus-within{border-color:var(--spruce2);outline:2px solid rgba(23,82,74,.2)}
+.camera-select-wrap svg{color:var(--spruce2);flex-shrink:0;margin-right:8px}
+.camera-select-wrap select{width:100%;border:0;background:transparent;font:500 14px Figtree,system-ui,sans-serif;color:var(--ink);padding:10px 0;outline:none;cursor:pointer}
+.cam-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;background:#fff;border:1.5px solid var(--line);border-radius:12px;color:var(--spruce2);font:700 13px Figtree,system-ui,sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.cam-btn:hover{background:#f4f7f5;border-color:var(--spruce2)}
+
+.reticle-target{position:absolute;width:90px;height:90px;pointer-events:none;opacity:.4;display:flex;align-items:center;justify-content:center}
+.reticle-ring{width:70px;height:70px;border:1.5px dashed rgba(126,224,138,.85);border-radius:50%}
+.crosshair{position:absolute;background:rgba(126,224,138,.8)}
+.crosshair.ch-x{width:20px;height:1.5px}
+.crosshair.ch-y{height:20px;width:1.5px}
+
+.countdown-overlay{position:absolute;inset:0;background:rgba(15,58,51,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:10;pointer-events:none}
+.countdown-box{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.countdown-number{font-family:'Bricolage Grotesque',sans-serif;font-size:96px;font-weight:800;color:#7ee08a;text-shadow:0 0 30px rgba(126,224,138,.9),0 4px 16px rgba(0,0,0,.6);line-height:1}
+.countdown-number.pulse{animation:countPulse .9s ease-out forwards}
+.countdown-subtext{font-size:14px;font-weight:700;color:#e6f7ec;margin-top:8px;letter-spacing:.3px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+@keyframes countPulse{0%{transform:scale(1.8);opacity:0}25%{transform:scale(1);opacity:1}80%{transform:scale(.95);opacity:1}100%{transform:scale(.75);opacity:0}}
+
+.camera-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:12;transition:opacity .08s ease-in}
+.camera-flash.active{opacity:.95;transition:none}
+
+.btn-row{display:flex;gap:10px;margin-top:14px}
+button#scanBtn{flex:1;border:0;border-radius:14px;padding:15px 18px;font:700 17px 'Bricolage Grotesque',sans-serif;color:#fff;background:linear-gradient(180deg,#2f7a3a,#256a30);cursor:pointer;box-shadow:0 6px 0 #17481f;transition:transform .08s,box-shadow .08s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+button#scanBtn:active{transform:translateY(4px);box-shadow:0 2px 0 #17481f}
+button#scanBtn:disabled{background:#aab5b0;box-shadow:0 6px 0 #8a9691;cursor:not-allowed}
+button#scanBtn:focus-visible{outline:3px solid var(--bin-blue);outline-offset:3px}
+
+button#retakeBtn{display:none;border:1.5px solid var(--line);border-radius:14px;padding:14px 18px;font:700 15px Figtree,sans-serif;background:#fff;color:var(--spruce2);cursor:pointer;align-items:center;gap:8px;box-shadow:0 4px 0 #d5dfd9;transition:all .1s}
+button#retakeBtn:hover{background:#f4f7f5;border-color:var(--spruce2)}
+button#retakeBtn:active{transform:translateY(2px);box-shadow:0 2px 0 #d5dfd9}
+
+.duplicate-alert{border-radius:14px;padding:16px;margin:14px 0 0;background:#fff2f0;border:1.5px solid #ff7875;border-left:6px solid #cf1322;color:#431412;animation:fadeIn .3s ease-out}
+.duplicate-alert h4{margin:0 0 6px;font-size:16px;color:#cf1322;display:flex;align-items:center;gap:8px;font-family:'Bricolage Grotesque',sans-serif}
+.duplicate-alert p{margin:0 0 10px;font-size:14px;line-height:1.45}
+.duplicate-alert code{background:#ffe8e6;padding:3px 6px;border-radius:6px;font-family:monospace;font-size:11.5px;word-break:break-all;color:#a8071a;display:inline-block}
+.dup-meta{font-size:12.5px;color:#7a221f;display:flex;flex-direction:column;gap:4px}
+
+/* 24-Hour Product Scan Window Alert */
+.product-window-alert{border-radius:14px;padding:16px;margin-bottom:14px;background:#fff8ee;border:1.5px solid #f5b041;border-left:6px solid #d35400;color:#4d2600;animation:fadeIn .3s ease-out}
+.product-window-alert h4{margin:0 0 6px;font-size:16px;color:#b94a00;display:flex;align-items:center;gap:8px;font-family:'Bricolage Grotesque',sans-serif}
+.product-window-alert p{margin:0 0 10px;font-size:13.5px;line-height:1.45}
+.pw-meta{display:grid;grid-template-columns:1fr;gap:6px;font-size:12.5px;background:#fff1dc;padding:10px 12px;border-radius:8px;border:1px solid #fed8a6}
+@media(min-width:500px){.pw-meta{grid-template-columns:1fr 1fr}}
+.cooldown-pill{display:inline-flex;align-items:center;gap:4px;background:#c0392b;color:#fff;font-weight:700;font-size:12px;padding:2px 8px;border-radius:12px}
+
+/* Verified 24-Hour Scan Badge */
+.verified-scan-badge{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 14px;margin-bottom:14px;background:#eefaf1;border:1.5px solid #6dd58c;border-left:6px solid #27ae60;border-radius:12px;color:#0e4620;animation:fadeIn .3s ease-out}
+.verified-scan-badge .v-left{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.verified-rewards{display:flex;gap:8px}
+.reward-chip{background:#27ae60;color:#fff;font-weight:800;font-size:12px;padding:4px 10px;border-radius:12px;box-shadow:0 2px 4px rgba(39,174,96,.25)}
+
+/* 24-Hour Wallet Activity Card */
+.wallet-card{background:var(--card);border-radius:20px;padding:18px;box-shadow:0 14px 34px rgba(15,58,51,.18);margin-bottom:16px}
+.wallet-card h3{font-size:18px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.wallet-card .wallet-sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+.wallet-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.wallet-stat-box{background:#f8faf9;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center}
+.wallet-stat-val{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800;color:var(--spruce2)}
+.wallet-stat-lbl{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.active-window-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.active-window-item{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #e1e9e4;border-radius:10px;padding:8px 12px;font-size:13px}
+.window-item-left{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ink)}
+.window-item-cooldown{font-size:11.5px;font-weight:700;background:#fff3e0;color:#b75900;border:1px solid #ffd599;padding:2px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:4px}
+.window-empty{text-align:center;padding:16px;color:var(--muted);font-size:13px;background:#f8faf9;border-radius:10px;border:1px dashed var(--line)}
+
+.key-input-row{display:flex;gap:8px;margin-top:8px}
+.key-input-row input{flex:1;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:monospace;font-size:13.5px;outline:none}
+.key-input-row input:focus{border-color:var(--spruce2)}
+.key-btn{padding:10px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font:700 13px Figtree,sans-serif;cursor:pointer;transition:all .15s}
+.key-btn:hover{background:#f4f7f5;border-color:var(--spruce2)}
+.key-btn.primary{background:var(--spruce2);color:#fff;border-color:var(--spruce2)}
+.key-btn.primary:hover{background:var(--spruce)}
+.key-status-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px}
+.key-status-badge{font-size:12.5px;font-weight:700;color:var(--moss)}
+.key-status-badge.error{color:#cf1322}
+.model-badge{font-size:12px;color:var(--muted)}
+.model-badge code{background:#eef2ef;padding:2px 6px;border-radius:4px;color:var(--spruce2)}
+
+.sha-badge-wrap{margin-top:12px}
+.sha-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:monospace;background:#eef4f1;border:1px solid #c7d8ce;padding:4px 8px;border-radius:6px;color:var(--spruce2);word-break:break-all}
+.sha-badge code{color:#0f3a33;font-weight:700}
+
+.c{position:absolute;width:26px;height:26px;border:3px solid #7ee08a;pointer-events:none;z-index:5}
 .c.tl{top:12px;left:12px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
 .c.tr{top:12px;right:12px;border-left:0;border-bottom:0;border-radius:0 8px 0 0}
 .c.bl{bottom:12px;left:12px;border-right:0;border-top:0;border-radius:0 0 0 8px}
 .c.br{bottom:12px;right:12px;border-left:0;border-top:0;border-radius:0 0 8px 0}
-.scanline{position:absolute;left:0;right:0;height:3px;top:0;background:linear-gradient(90deg,transparent,#7ee08a,transparent);box-shadow:0 0 16px 4px rgba(126,224,138,.7);display:none}
+.scanline{position:absolute;left:0;right:0;height:3px;top:0;background:linear-gradient(90deg,transparent,#7ee08a,transparent);box-shadow:0 0 16px 4px rgba(126,224,138,.7);display:none;z-index:6}
 .scanning .scanline{display:block;animation:sweep 1.4s ease-in-out infinite alternate}
 @keyframes sweep{from{top:6%}to{top:94%}}
-
-button#analyseBtn{
-  width:100%;margin-top:14px;border:0;border-radius:14px;padding:15px;font:700 17px 'Bricolage Grotesque',sans-serif;
-  color:#fff;background:linear-gradient(180deg,#2f7a3a,#256a30);cursor:pointer;box-shadow:0 6px 0 #17481f;transition:transform .08s,box-shadow .08s
-}
-button#analyseBtn:active{transform:translateY(4px);box-shadow:0 2px 0 #17481f}
-button#analyseBtn:disabled{background:#aab5b0;box-shadow:0 6px 0 #8a9691;cursor:not-allowed}
-button#analyseBtn:focus-visible{outline:3px solid var(--bin-blue);outline-offset:3px}
 #status{font-size:13px;color:var(--muted);margin-top:12px;min-height:18px}
 
 /* ---------- RESULT: sorting tag ---------- */
@@ -89,10 +169,30 @@ button#analyseBtn:focus-visible{outline:3px solid var(--bin-blue);outline-offset
 .row dd{margin:0}
 .notice{border-radius:12px;padding:12px 14px;font-size:14px;margin-top:12px;background:#fff6dd;border-left:5px solid var(--amber)}
 .notice.info{background:#e8f0fb;border-color:var(--bin-blue)}
-#sampleBanner{display:none;background:#ffe9a8;color:#5a4300;font-weight:700;font-size:12px;padding:8px 18px}
-.api-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:13px}
-.api-links a{color:var(--spruce2);font-weight:700}
-button.api-refresh{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fff;color:var(--ink);font:700 13px Figtree,system-ui,sans-serif;cursor:pointer}
+
+/* Recyclable vs Non-Recyclable Branching Styles */
+.waste-type-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;font-weight:700;font-size:14px;margin-bottom:14px}
+.waste-type-banner.recyclable{background:#e6f7ec;color:#17682d;border:1px solid #95deb1}
+.waste-type-banner.non-recyclable{background:#fff4e5;color:#b75900;border:1px solid #ffd599}
+
+.disposal-guide{margin-top:16px;padding:14px;background:#f8faf9;border:1.5px solid #d5dfd9;border-radius:14px}
+.disposal-guide h4{margin:0 0 10px;font-size:15px;color:var(--spruce2);display:flex;align-items:center;gap:8px;font-family:'Bricolage Grotesque',sans-serif}
+.prep-steps-list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.prep-step-item{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;line-height:1.45;background:#fff;padding:8px 12px;border-radius:8px;border:1px solid #e1e9e4}
+.prep-step-num{background:var(--spruce2);color:#fff;font-weight:700;font-size:11px;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.contamination-alert{margin-top:12px;padding:10px 12px;background:#fef0ef;border-left:4px solid #e05a47;border-radius:6px;font-size:13px;color:#5c1811;display:flex;gap:8px;align-items:flex-start}
+
+.creative-section{margin-top:16px;padding:14px;background:#fbfbf6;border:1.5px solid #ebd89f;border-radius:14px}
+.creative-section h4{margin:0 0 4px;font-size:15px;color:#634300;display:flex;align-items:center;gap:8px;font-family:'Bricolage Grotesque',sans-serif}
+.creative-subtitle{font-size:12.5px;color:#7d652d;margin:0 0 12px}
+.creative-grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:540px){.creative-grid{grid-template-columns:1fr 1fr}}
+.creative-card{background:#fff;border:1px solid #f0e6c8;border-radius:10px;padding:12px;box-shadow:0 2px 6px rgba(100,70,0,.04)}
+.creative-card-header{display:flex;align-items:center;gap:6px;font-weight:700;font-size:13.5px;color:var(--spruce2);margin-bottom:4px}
+.creative-card p{margin:0;font-size:12.5px;color:var(--ink);line-height:1.4}
+
+.eco-swap-box{margin-top:14px;padding:12px 14px;background:#eef8f3;border:1.5px dashed var(--moss);border-radius:10px;display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#17524a}
+.eco-swap-box b{color:#0f3a33;display:block;margin-bottom:2px}
 
 /* ---------- SETUP ---------- */
 details.setup{background:#fff;border:1px dashed #b7c7be;border-radius:16px;padding:14px 16px}
@@ -151,197 +251,1232 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:22px}
 
 <main>
   <section class="card">
-    <h2>Scan an item</h2>
-    <p class="sub">Place one item on a plain background, with good light.</p>
-
-    <div class="viewfinder" id="vf">
-      <input type="file" id="fileInput" accept="image/*" aria-label="Choose or take a photo">
-      <div class="vf-empty" id="vfEmpty">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7ee08a" stroke-width="1.6"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
-        <b>Tap to add a photo</b>
-        <small>Use the camera or pick from your gallery</small>
+    <div class="scan-header-row">
+      <div>
+        <h2>Live Waste Scanner</h2>
+        <p class="sub">Point your camera at a single waste item with good lighting.</p>
       </div>
-      <img id="preview" alt="Your photo preview">
-      <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
-      <div class="scanline"></div>
+      <div class="live-pill" id="livePill"><span class="dot"></span> LIVE</div>
     </div>
 
-    <button id="analyseBtn" disabled>Check my item</button>
-    <div id="status" role="status"></div>
+    <!-- Camera Selector Bar -->
+    <div class="camera-toolbar">
+      <div class="camera-select-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <select id="cameraSelect" aria-label="Select camera">
+          <option value="">Detecting available cameras...</option>
+        </select>
+      </div>
+      <button type="button" id="switchCameraBtn" class="cam-btn" title="Switch between available cameras" aria-label="Switch camera">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 16l-4 4-4-4"/><path d="M4 20h16"/><path d="M4 8l4-4 4 4"/><path d="M20 4H4"/></svg>
+        <span>Switch</span>
+      </button>
+    </div>
+
+    <!-- Viewfinder with Video, Reticle, Countdown, Flash & Preview -->
+    <div class="viewfinder" id="vf">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <img id="preview" alt="Captured waste snapshot" style="display:none;">
+
+      <!-- Center Targeting Reticle -->
+      <div class="reticle-target" aria-hidden="true">
+        <div class="crosshair ch-x"></div>
+        <div class="crosshair ch-y"></div>
+        <div class="reticle-ring"></div>
+      </div>
+
+      <!-- Corner Brackets -->
+      <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+      
+      <!-- Sweeping Laser Scanline -->
+      <div class="scanline"></div>
+
+      <!-- Reverse Countdown Overlay (3... 2... 1...) -->
+      <div id="countdownOverlay" class="countdown-overlay" style="display:none;" aria-live="assertive">
+        <div class="countdown-box">
+          <div id="countdownNumber" class="countdown-number">3</div>
+          <div id="countdownSubtext" class="countdown-subtext">Hold steady: capturing in 3...</div>
+        </div>
+      </div>
+
+      <!-- Shutter Flash Effect -->
+      <div id="cameraFlash" class="camera-flash"></div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+      <button id="scanBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+        <span>Capture &amp; Analyze (3..2..1)</span>
+      </button>
+      <button type="button" id="uploadBtn" class="cam-btn" style="padding:14px 18px;border-radius:14px;border:1.5px solid var(--line);font-weight:700;background:#fff;color:var(--spruce2);display:inline-flex;align-items:center;gap:6px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Upload Photo</span>
+        <input type="file" id="imageFileInput" accept="image/*" style="display:none;">
+      </button>
+      <button type="button" id="retakeBtn" class="retake-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        <span>Scan Another Item</span>
+      </button>
+    </div>
+
+    <div id="status" role="status">Initializing live camera stream...</div>
+
+    <!-- Duplicate Prevention Alert (SHA-256 Match within 24h) -->
+    <div id="duplicateAlert" class="duplicate-alert" style="display:none;" role="alert">
+      <h4>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cf1322" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        Duplicate Item Detected (Analysis Blocked)
+      </h4>
+      <p>This exact item was already scanned within the last 24 hours. The direct Gemini API request has been prevented to avoid duplicate classification.</p>
+      <div class="dup-meta">
+        <div><b>Cryptographic SHA-256:</b> <code id="dupHash"></code></div>
+        <div><b>First Scanned:</b> <span id="dupTime"></span></div>
+      </div>
+    </div>
   </section>
 
+  <!-- Direct Gemini Cloud API Configuration Panel -->
   <details class="setup" id="apiPanel" open>
-    <summary>Backend API</summary>
-    <p id="apiStatus" class="sub" role="status" style="margin:10px 0 0">Connecting to the API...</p>
-    <p id="apiStats" class="sub" style="margin:6px 0 0">Loading scan statistics...</p>
-    <div class="api-links">
-      <a href="/api/health" target="_blank" rel="noopener">GET /api/health</a>
-      <a href="/api/rules" target="_blank" rel="noopener">GET /api/rules</a>
-      <a href="/api/stats" target="_blank" rel="noopener">GET /api/stats</a>
-      <span>POST /api/analyse (used by the scanner)</span>
+    <summary>Gemini API Settings (Direct Cloud API)</summary>
+    <label class="f" for="geminiKeyInput">Google Gemini API Key</label>
+    <div class="key-input-row">
+      <input type="password" id="geminiKeyInput" placeholder="Paste your Gemini API key (AIzaSy...)" autocomplete="off">
+      <button type="button" id="toggleKeyBtn" class="key-btn" title="Show/Hide Key">👁</button>
+      <button type="button" id="saveKeyBtn" class="key-btn primary">Save Key</button>
     </div>
-    <button type="button" class="api-refresh" id="refreshApiBtn">Reconnect / refresh stats</button>
+    <div class="key-status-row">
+      <span id="apiKeyStatus" class="key-status-badge">Checking API Key...</span>
+      <span class="model-badge">Model: <code>gemini-3-flash-preview</code></span>
+    </div>
+    <p class="sub" style="margin:8px 0 0">
+      Analysis is performed 100% via direct client-to-cloud Google Generative Language API calls.
+      Get a free key from <a href="https://aistudio.google.com" target="_blank" rel="noopener">Google AI Studio</a>. Keys are stored locally in your browser.
+    </p>
   </details>
 
+  <!-- Result Card with Sorting Tag & SHA-256 Badge -->
   <section class="card" id="resultCard" aria-live="polite">
-    <div id="sampleBanner">SAMPLE RESULT: not a live AI prediction</div>
     <div class="tagband" id="tagband">
       <span class="hole"></span>
       <div><small>Put it in</small><h3 id="rCat"></h3></div>
     </div>
     <div class="rbody">
+      <!-- 24-Hour Product Scan Window Lockout Banner (Duplicate Scan within 24h) -->
+      <div id="productWindowAlert" class="product-window-alert" style="display:none;" role="alert">
+        <h4>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d35400" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          24-Hour Product Scan Window Active (Duplicate Entry Prevented)
+        </h4>
+        <p>You have already scanned this exact product (<b id="pwItemName">Item</b>) within the last 24 hours. To prevent duplicate waste entries and unnecessary cashback issues, reward credits are locked to <b>once per 24 hours</b>.</p>
+        <div class="pw-meta">
+          <div><b>First Scanned:</b> <span id="pwTimeAgo">--</span></div>
+          <div><b>Cooldown Remaining:</b> <span id="pwCooldownRemaining" class="cooldown-pill">--</span></div>
+          <div><b>Next Scan Eligible:</b> <span id="pwUnlockTime">--</span></div>
+          <div><b>Cashback Status:</b> <span style="color:#c0392b;font-weight:700;">$0.00 (Duplicate Prevented)</span></div>
+        </div>
+      </div>
+
+      <!-- Verified 24-Hour Scan Entry Badge (Unique Product Scan) -->
+      <div id="verifiedScanBadge" class="verified-scan-badge" style="display:none;">
+        <div class="v-left">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span>Verified 24h Scan Entry Logged!</span>
+        </div>
+        <div class="verified-rewards">
+          <span class="reward-chip" id="verCashbackAmt">+$0.05 Cashback</span>
+          <span class="reward-chip" id="verXpAmt">+25 XP</span>
+        </div>
+      </div>
+
+      <!-- Recyclable vs Non-Recyclable Status Banner -->
+      <div id="wasteTypeBanner" class="waste-type-banner recyclable">
+        <span id="wasteTypeIcon">✅</span>
+        <span id="wasteTypeText">Recyclable Item</span>
+      </div>
+
       <dl style="margin:0">
         <div class="row"><dt>Item</dt><dd id="rItem"></dd></div>
         <div class="row"><dt>Why</dt><dd id="rWhy"></dd></div>
         <div class="row"><dt>Campus rule</dt><dd id="rGuide"></dd></div>
       </dl>
       <div class="notice" id="rWarn"></div>
-      <div class="notice info">AI gives guidance, not a guarantee. Follow the labels on your campus bins and ask waste staff if unsure.</div>
+
+      <!-- Recyclable Disposal Protocol Pipeline -->
+      <div id="recyclableSection" class="disposal-guide" style="display:none;">
+        <h4>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          How to Properly Dispose of This Recyclable
+        </h4>
+        <ul id="prepStepsList" class="prep-steps-list">
+          <!-- Populated dynamically -->
+        </ul>
+        <div id="contaminationAlert" class="contamination-alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e05a47" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div>
+            <b>Contamination Alert:</b> <span id="contaminationTip">Ensure item is clean and dry. Food residue or grease ruins entire recycling batches.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Non-Recyclable Creative Repurposing & Composting Pipeline -->
+      <div id="nonRecyclableSection" class="creative-section" style="display:none;">
+        <h4>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Creative Alternatives &amp; Repurposing (Minimize Waste)
+        </h4>
+        <p class="creative-subtitle">This item cannot go into standard recycling. Try these eco-friendly ways to reuse, compost, or divert it from the landfill:</p>
+        <div id="creativeGrid" class="creative-grid">
+          <!-- Populated dynamically -->
+        </div>
+        <!-- Eco-Swap Recommendation -->
+        <div id="ecoSwapBox" class="eco-swap-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <div>
+            <b id="ecoSwapTitle">Sustainable Swap for Next Time:</b>
+            <div id="ecoSwapText">Use a reusable alternative to eliminate disposable waste.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sha-badge-wrap">
+        <span class="sha-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <b>SHA-256:</b> <code id="resultHash"></code>
+        </span>
+      </div>
+      <div class="notice info">AI gives guidance based on campus waste classification. Follow the labels on your campus bins.</div>
     </div>
   </section>
 
-  <details class="setup">
-    <summary>Demo options</summary>
-    <label class="chk"><input type="checkbox" id="sampleMode"> Sample mode: shows fake results for a design demo, not real AI</label>
-    <p class="sub" style="margin:10px 0 0">The API key is kept on the server (.env), never in this page.</p>
-  </details>
+  <!-- 24-Hour Product Scan Window & Cashback Wallet Card -->
+  <section class="card wallet-card" id="walletCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--moss)" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        24-Hour Scan Window &amp; Cashback Wallet
+      </h3>
+      <button type="button" id="clearWindowBtn" class="cam-btn" style="padding:4px 10px;font-size:11.5px;color:var(--muted)" title="Reset window test state">Reset Window</button>
+    </div>
+    <p class="wallet-sub">Each unique product can only be scanned once every 24 hours to prevent duplicate entries and maintain fair cashback distribution.</p>
+    
+    <div class="wallet-stats-grid">
+      <div class="wallet-stat-box">
+        <div class="wallet-stat-val" id="walletCashbackVal">$0.00</div>
+        <div class="wallet-stat-lbl">Cashback Earned</div>
+      </div>
+      <div class="wallet-stat-box">
+        <div class="wallet-stat-val" id="walletXpVal">0 XP</div>
+        <div class="wallet-stat-lbl">Eco-XP Total</div>
+      </div>
+      <div class="wallet-stat-box">
+        <div class="wallet-stat-val" id="walletWindowCount">0</div>
+        <div class="wallet-stat-lbl">Items in 24h Window</div>
+      </div>
+    </div>
 
-  <footer>EcoVision Mini AI &middot; Hackathon prototype</footer>
+    <div>
+      <h4 style="font-size:13px;font-weight:700;color:var(--spruce2);margin:0 0 8px;text-transform:uppercase;letter-spacing:.3px">Active 24-Hour Product Locks</h4>
+      <div id="walletEmptyState" class="window-empty">No products scanned yet today. Use the live camera scanner above!</div>
+      <ul id="walletProductList" class="active-window-list" style="display:none;">
+        <!-- Populated dynamically -->
+      </ul>
+    </div>
+  </section>
+
+  <footer>EcoVision Mini AI &middot; Live Camera &amp; Direct Gemini API</footer>
 </main>
 
 <script>
-let RULES = {};
-let imageBase64 = null;
-let apiReady = false;
+// Campus Waste Classification Rules
+const CAMPUS_RULES = {
+  "recyclable": {
+    bin_name: "Recycling bin",
+    guidance: "Empty and rinse it, then put it in the campus recycling bin.",
+    caution: "Greasy, soiled, or wet items may not qualify."
+  },
+  "organic": {
+    bin_name: "Organic bin",
+    guidance: "Put it into organic bin for campus composting.",
+    caution: "Check that no packaging, stickers, or plastic wrappers are mixed in."
+  },
+  "hazardous": {
+    bin_name: "E-waste point",
+    guidance: "Do not put it in general waste. Hand it over at the designated e-waste / battery collection point.",
+    caution: "Safety note: batteries, fluorescent/CFL tubes (mercury), and electronics are hazardous."
+  },
+  "general": {
+    bin_name: "Non-recyclable general waste",
+    guidance: "Put it in the regular non-hazardous general waste (trash) bin.",
+    caution: "Could it be reused or reduced next time?"
+  },
+  "unsure": {
+    bin_name: "Check first",
+    guidance: "Not sure. Take a clearer photo of one item or ask campus staff.",
+    caution: "The system is not sure. Do not guess."
+  }
+};
+
+let currentStream = null;
+let availableCameras = [];
+let selectedDeviceId = null;
+let isCountingDown = false;
 const $ = id => document.getElementById(id);
 
-function updateAnalyseAvailability() {
-  $("analyseBtn").disabled = !imageBase64 || (!$("sampleMode").checked && !apiReady);
+// --- API Key Management (Direct Gemini API) ---
+function getGeminiApiKey() {
+  const saved = localStorage.getItem("gemini_api_key");
+  if (saved && saved.trim()) return saved.trim();
+  if (window.ECOVISION_LOCAL_CONFIG && window.ECOVISION_LOCAL_CONFIG.GEMINI_API_KEY) {
+    return window.ECOVISION_LOCAL_CONFIG.GEMINI_API_KEY.trim();
+  }
+  if (window.ECOVISION_CONFIG && window.ECOVISION_CONFIG.GEMINI_API_KEY) {
+    return window.ECOVISION_CONFIG.GEMINI_API_KEY.trim();
+  }
+  return "";
 }
 
-$("fileInput").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => {
-      const max = 1024, scale = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement("canvas");
-      c.width = img.width * scale; c.height = img.height * scale;
-      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-      const dataUrl = c.toDataURL("image/jpeg", 0.85);
-      $("preview").src = dataUrl; $("preview").style.display = "block";
-      $("vfEmpty").style.display = "none";
-      imageBase64 = dataUrl.split(",")[1];
-      updateAnalyseAvailability();
-      $("status").textContent = "";
-      $("resultCard").style.display = "none";
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
-
-$("sampleMode").addEventListener("change", updateAnalyseAvailability);
-$("refreshApiBtn").addEventListener("click", connectApi);
-
-$("analyseBtn").addEventListener("click", async () => {
-  $("analyseBtn").disabled = true;
-  $("vf").classList.add("scanning");
-  $("status").textContent = "Scanning your item...";
-  const t0 = performance.now();
-  try {
-    let result, isSample = false;
-    if ($("sampleMode").checked) {
-      isSample = true;
-      await new Promise(r => setTimeout(r, 1200));
-      result = {item_name:"Plastic drink bottle", category:"recyclable",
-                bin_name:"Recycling bin", guidance:"Empty and rinse it, then put it in the campus recycling bin.",
-                caution:"Greasy or wet items may not qualify.",
-                explanation:"Sample text for the design demo.", uncertainty_flag:false};
-    } else {
-      result = await askGemma();
-    }
-    show(result, isSample);
-    if (!isSample) await refreshStats();
-    const secs = ((performance.now() - t0) / 1000).toFixed(1);
-    $("status").textContent = "Done in " + secs + " seconds";   // note this in your test sheet
-  } catch (err) {
-    $("status").textContent = "Something went wrong: " + err.message + ". Check the server is running and you are online.";
+function updateKeyStatusUI() {
+  const key = getGeminiApiKey();
+  const statusEl = $("apiKeyStatus");
+  if (key) {
+    statusEl.textContent = "● API Key Active (" + (key.length > 8 ? key.slice(0, 4) + "..." + key.slice(-4) : "configured") + ")";
+    statusEl.className = "key-status-badge";
+  } else {
+    statusEl.textContent = "⚠ No API Key Configured (Direct calls require a key)";
+    statusEl.className = "key-status-badge error";
   }
-  $("vf").classList.remove("scanning");
-  updateAnalyseAvailability();
+  if ($("geminiKeyInput").value === "" && key) {
+    $("geminiKeyInput").value = key;
+  }
+}
+
+$("saveKeyBtn").addEventListener("click", () => {
+  const val = $("geminiKeyInput").value.trim();
+  if (val) {
+    localStorage.setItem("gemini_api_key", val);
+    $("status").textContent = "Gemini API key saved to local storage.";
+  } else {
+    localStorage.removeItem("gemini_api_key");
+    $("status").textContent = "Custom API key cleared. Using workspace default.";
+  }
+  updateKeyStatusUI();
 });
 
-async function askGemma() {
-  return apiRequest("/api/analyse", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ image_base64: imageBase64, mime_type: "image/jpeg" })
+$("toggleKeyBtn").addEventListener("click", () => {
+  const input = $("geminiKeyInput");
+  input.type = input.type === "password" ? "text" : "password";
+});
+
+// --- Camera Management (No photo upload, 100% Live Stream) ---
+async function initCameraSystem() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    $("status").textContent = "Camera API not supported in this browser or requires HTTPS / localhost.";
+    $("scanBtn").disabled = true;
+    return;
+  }
+
+  try {
+    // Initial permission request to reveal device labels
+    const tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    tempStream.getTracks().forEach(t => t.stop());
+
+    await refreshCameraList();
+    if (availableCameras.length > 0) {
+      await startCamera(availableCameras[0].deviceId);
+    } else {
+      await startCamera(); // Default camera
+    }
+  } catch (err) {
+    console.error("Camera access error:", err);
+    $("status").textContent = "Camera access denied or unavailable: " + err.message + ". Please enable camera permissions.";
+    $("scanBtn").disabled = true;
+  }
+}
+
+async function refreshCameraList() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    availableCameras = devices.filter(d => d.kind === "videoinput");
+    const sel = $("cameraSelect");
+    sel.innerHTML = "";
+
+    if (availableCameras.length === 0) {
+      const opt = document.createElement("option");
+      opt.text = "Default Camera";
+      opt.value = "";
+      sel.appendChild(opt);
+      return;
+    }
+
+    availableCameras.forEach((cam, idx) => {
+      const opt = document.createElement("option");
+      opt.value = cam.deviceId;
+      opt.text = cam.label || ("Camera " + (idx + 1));
+      sel.appendChild(opt);
+    });
+  } catch (err) {
+    console.warn("Could not enumerate cameras:", err);
+  }
+}
+
+async function startCamera(deviceId) {
+  if (currentStream) {
+    currentStream.getTracks().forEach(t => t.stop());
+    currentStream = null;
+  }
+
+  selectedDeviceId = deviceId || (availableCameras[0] ? availableCameras[0].deviceId : null);
+  if (selectedDeviceId && $("cameraSelect").value !== selectedDeviceId) {
+    $("cameraSelect").value = selectedDeviceId;
+  }
+
+  try {
+    const constraints = {
+      video: selectedDeviceId ? { deviceId: { exact: selectedDeviceId } } : { facingMode: "environment" },
+      audio: false
+    };
+    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const video = $("cameraVideo");
+    video.srcObject = currentStream;
+    await video.play();
+
+    video.style.display = "block";
+    $("preview").style.display = "none";
+    $("vf").classList.remove("scanning");
+    $("scanBtn").disabled = false;
+    $("retakeBtn").style.display = "none";
+    $("duplicateAlert").style.display = "none";
+    $("status").textContent = "Camera live. Aim at your waste item and click Capture.";
+  } catch (err) {
+    console.error("Failed to start camera:", err);
+    $("status").textContent = "Unable to start selected camera: " + err.message;
+  }
+}
+
+$("cameraSelect").addEventListener("change", async (e) => {
+  if (e.target.value) {
+    await startCamera(e.target.value);
+  }
+});
+
+$("switchCameraBtn").addEventListener("click", async () => {
+  if (availableCameras.length < 2) return;
+  const currentIdx = availableCameras.findIndex(c => c.deviceId === selectedDeviceId);
+  const nextIdx = (currentIdx + 1) % availableCameras.length;
+  await startCamera(availableCameras[nextIdx].deviceId);
+});
+
+// --- Web Audio Synthesizer for Multi-Sensory Countdown ---
+let audioCtx = null;
+function playCountdownTone(freq = 880, duration = 0.12, type = "sine") {
+  try {
+    const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtxClass) return;
+    if (!audioCtx) audioCtx = new AudioCtxClass();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+    gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch (e) {
+    // Audio optional / graceful degradation
+  }
+}
+
+// --- Strict Reverse Countdown (3... 2... 1... SNAP!) ---
+$("scanBtn").addEventListener("click", () => {
+  if (isCountingDown) return;
+  isCountingDown = true;
+  $("scanBtn").disabled = true;
+  $("resultCard").style.display = "none";
+  $("duplicateAlert").style.display = "none";
+  if ($("productWindowAlert")) $("productWindowAlert").style.display = "none";
+  if ($("verifiedScanBadge")) $("verifiedScanBadge").style.display = "none";
+  $("status").textContent = "Get ready: capturing in 5 seconds...";
+
+  const overlay = $("countdownOverlay");
+  const countNumber = $("countdownNumber");
+  const countSub = $("countdownSubtext");
+  overlay.style.display = "flex";
+
+  let remaining = 5;
+  countNumber.textContent = remaining;
+  if (countSub) countSub.textContent = "Hold steady: capturing in 5...";
+  countNumber.className = "countdown-number pulse";
+  playCountdownTone(880, 0.12, "sine");
+
+  const countdownInterval = setInterval(() => {
+    remaining--;
+    if (remaining > 0) {
+      countNumber.textContent = remaining;
+      if (countSub) countSub.textContent = `Hold steady: capturing in ${remaining}...`;
+      countNumber.classList.remove("pulse");
+      void countNumber.offsetWidth; // retrigger CSS animation
+      countNumber.classList.add("pulse");
+      playCountdownTone(880, 0.12, "sine");
+    } else {
+      clearInterval(countdownInterval);
+      countNumber.textContent = "📸";
+      if (countSub) countSub.textContent = "Capturing snapshot!";
+      countNumber.classList.add("pulse");
+      playCountdownTone(1760, 0.22, "triangle");
+
+      // Shutter flash effect
+      const flash = $("cameraFlash");
+      flash.classList.add("active");
+      setTimeout(() => flash.classList.remove("active"), 200);
+
+      // STRICT EXECUTION: Frame capture and AI analysis only execute AFTER countdown completes!
+      setTimeout(() => {
+        overlay.style.display = "none";
+        isCountingDown = false;
+        captureAndProcessFrame();
+      }, 350);
+    }
+  }, 1000);
+});
+
+// --- Upload Image Handler (with 3..2..1 Countdown & AI Detection) ---
+if ($("uploadBtn") && $("imageFileInput")) {
+  $("uploadBtn").addEventListener("click", () => {
+    $("imageFileInput").click();
+  });
+
+  $("imageFileInput").addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const dataUrl = evt.target.result;
+      const preview = $("preview");
+      preview.src = dataUrl;
+      preview.style.display = "block";
+      $("cameraVideo").style.display = "none";
+      $("retakeBtn").style.display = "inline-flex";
+
+      startCountdownForUploadedImage(dataUrl);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   });
 }
 
-async function apiRequest(path, options) {
-  const res = await fetch(path, options);
-  const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data && typeof data.detail === "string" ? data.detail : "Request failed");
-  return data;
-}
+function startCountdownForUploadedImage(dataUrl) {
+  if (isCountingDown) return;
+  isCountingDown = true;
+  $("scanBtn").disabled = true;
+  if ($("uploadBtn")) $("uploadBtn").disabled = true;
+  $("resultCard").style.display = "none";
+  $("duplicateAlert").style.display = "none";
+  if ($("productWindowAlert")) $("productWindowAlert").style.display = "none";
+  if ($("verifiedScanBadge")) $("verifiedScanBadge").style.display = "none";
+  $("status").textContent = "Analyzing uploaded image: 5 seconds countdown...";
 
-async function refreshStats() {
-  try {
-    const stats = await apiRequest("/api/stats");
-    const breakdown = Object.entries(stats.by_category || {})
-      .map(([category, count]) => category + ": " + count).join(", ");
-    $("apiStats").textContent = "Scans: " + stats.total_scans +
-      (breakdown ? " (" + breakdown + ")" : "") + (stats.note ? " · " + stats.note : "");
-  } catch (err) {
-    $("apiStats").textContent = "Stats unavailable: " + err.message;
-  }
-}
+  const overlay = $("countdownOverlay");
+  const countNumber = $("countdownNumber");
+  const countSub = $("countdownSubtext");
+  overlay.style.display = "flex";
 
-async function connectApi() {
-  apiReady = false;
-  updateAnalyseAvailability();
-  $("apiStatus").textContent = "Connecting to the API...";
-  try {
-    const [health, rules] = await Promise.all([
-      apiRequest("/api/health"),
-      apiRequest("/api/rules")
-    ]);
-    if (!health || health.ok !== true || !rules || !rules.categories) {
-      throw new Error("The API returned an unexpected response.");
+  let remaining = 5;
+  countNumber.textContent = remaining;
+  if (countSub) countSub.textContent = "Scanning uploaded photo in 5...";
+  countNumber.className = "countdown-number pulse";
+  playCountdownTone(880, 0.12, "sine");
+
+  const countdownInterval = setInterval(() => {
+    remaining--;
+    if (remaining > 0) {
+      countNumber.textContent = remaining;
+      if (countSub) countSub.textContent = `Scanning uploaded photo in ${remaining}...`;
+      countNumber.classList.remove("pulse");
+      void countNumber.offsetWidth;
+      countNumber.classList.add("pulse");
+      playCountdownTone(880, 0.12, "sine");
+    } else {
+      clearInterval(countdownInterval);
+      countNumber.textContent = "🔍";
+      if (countSub) countSub.textContent = "Processing image...";
+      countNumber.classList.add("pulse");
+      playCountdownTone(1760, 0.22, "triangle");
+
+      const flash = $("cameraFlash");
+      flash.classList.add("active");
+      setTimeout(() => flash.classList.remove("active"), 200);
+
+      setTimeout(() => {
+        overlay.style.display = "none";
+        isCountingDown = false;
+        $("scanBtn").disabled = false;
+        if ($("uploadBtn")) $("uploadBtn").disabled = false;
+        processUploadedBase64(dataUrl);
+      }, 350);
     }
-    RULES = rules.categories;
-    apiReady = true;
-    $("apiStatus").textContent = "Connected · " + health.provider + " / " + health.model +
-      (health.key_set ? "" : " · API key not configured");
-  } catch (err) {
-    $("apiStatus").textContent = "API unavailable: " + err.message +
-      " Open this page from the running backend URL (for example, http://127.0.0.1:8000/).";
+  }, 1000);
+}
+
+async function processUploadedBase64(dataUrl) {
+  const base64Data = dataUrl.split(",")[1];
+  $("status").textContent = "Computing cryptographic SHA-256 hash...";
+  const rawBinary = atob(base64Data);
+  const byteArray = new Uint8Array(rawBinary.length);
+  for (let i = 0; i < rawBinary.length; i++) {
+    byteArray[i] = rawBinary.charCodeAt(i);
   }
-  updateAnalyseAvailability();
-  await refreshStats();
+
+  const hashBuffer = await crypto.subtle.digest("SHA-256", byteArray);
+  const sha256Hex = Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const duplicate = checkAndRecordDuplicate(sha256Hex);
+  if (duplicate) {
+    $("duplicateAlert").style.display = "block";
+    $("dupHash").textContent = sha256Hex;
+    $("dupTime").textContent = duplicate.timeAgo;
+    $("status").textContent = "🚫 Blocked: Identical image already scanned within 24 hours.";
+    $("vf").classList.remove("scanning");
+    return;
+  }
+
+  await callDirectGemini(base64Data, sha256Hex);
 }
 
-function show(r, isSample) {
+// --- Frame Capture & SHA-256 Duplicate Guard ---
+async function captureAndProcessFrame() {
+  const video = $("cameraVideo");
+  if (!video || !video.videoWidth) {
+    $("status").textContent = "Camera stream not ready. Please try again.";
+    $("scanBtn").disabled = false;
+    return;
+  }
+
+  // Draw current frame to offscreen canvas
+  const maxDim = 1024;
+  const scale = Math.min(1, maxDim / Math.max(video.videoWidth, video.videoHeight));
+  const c = document.createElement("canvas");
+  c.width = Math.round(video.videoWidth * scale);
+  c.height = Math.round(video.videoHeight * scale);
+  c.getContext("2d").drawImage(video, 0, 0, c.width, c.height);
+
+  // Freeze snapshot preview
+  const dataUrl = c.toDataURL("image/jpeg", 0.88);
+  $("preview").src = dataUrl;
+  $("preview").style.display = "block";
+  video.style.display = "none";
+  $("retakeBtn").style.display = "inline-flex";
+
+  const base64Data = dataUrl.split(",")[1];
+
+  // 1. Generate SHA-256 cryptographic hash of image bytes
+  $("status").textContent = "Computing cryptographic SHA-256 hash...";
+  const rawBinary = atob(base64Data);
+  const byteArray = new Uint8Array(rawBinary.length);
+  for (let i = 0; i < rawBinary.length; i++) {
+    byteArray[i] = rawBinary.charCodeAt(i);
+  }
+
+  const hashBuffer = await crypto.subtle.digest("SHA-256", byteArray);
+  const sha256Hex = Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  // 2. Check 24-hour duplicate prevention guard
+  const duplicate = checkAndRecordDuplicate(sha256Hex);
+  if (duplicate) {
+    $("duplicateAlert").style.display = "block";
+    $("dupHash").textContent = sha256Hex;
+    $("dupTime").textContent = duplicate.timeAgo;
+    $("status").textContent = "🚫 Blocked: Identical item already scanned within 24 hours.";
+    $("vf").classList.remove("scanning");
+    return;
+  }
+
+  // 3. Direct Gemini Cloud API Call
+  await callDirectGemini(base64Data, sha256Hex);
+}
+
+// 24-Hour Hash Duplicate Detection
+function checkAndRecordDuplicate(hash) {
+  const STORAGE_KEY = "ecovision_scan_hashes_v1";
+  const now = Date.now();
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+  let records = [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) records = JSON.parse(raw);
+    if (!Array.isArray(records)) records = [];
+  } catch (e) {
+    records = [];
+  }
+
+  // Prune expired records (> 24h)
+  records = records.filter(r => (now - r.timestamp) < TWENTY_FOUR_HOURS);
+
+  const existing = records.find(r => r.hash === hash);
+  if (existing) {
+    const diffMs = now - existing.timestamp;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const timeAgo = diffHours > 0
+      ? (diffHours + " hour" + (diffHours > 1 ? "s" : "") + " and " + (diffMins % 60) + " min ago")
+      : (diffMins + " minute" + (diffMins !== 1 ? "s" : "") + " ago");
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    return { existing, timeAgo };
+  }
+
+  // Record unique scan hash
+  records.push({ hash, timestamp: now, date: new Date().toISOString() });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  return null;
+}
+
+// --- 24-Hour Product Scan Window & Deduplication Engine ---
+const PRODUCT_WINDOW_KEY = "ecovision_product_window_24h";
+const WALLET_KEY = "ecovision_cashback_wallet";
+
+function normalizeProductKey(name, category) {
+  if (!name) return (category || "unknown_item").toLowerCase();
+  
+  let s = name.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\b(an?|the|and|of|for|in|on|with|fresh|organic|dirty|clean|used|empty|single|use|disposable|reusable)\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Canonical product mappings for common campus items
+  if (s.includes("banana")) return "banana_peel";
+  if (s.includes("apple")) return "apple_core";
+  if (s.includes("orange") || s.includes("citrus")) return "citrus_peel";
+  if (s.includes("coke") || s.includes("cola") || s.includes("soda can") || s.includes("aluminum can")) return "aluminum_can";
+  if (s.includes("water bottle") || s.includes("plastic bottle") || s.includes("pet bottle")) return "plastic_water_bottle";
+  if (s.includes("coffee cup") || s.includes("paper cup") || s.includes("starbucks")) return "paper_coffee_cup";
+  if (s.includes("cardboard") || s.includes("shipping box") || s.includes("pizza box")) return "cardboard_box";
+  if (s.includes("chip") || s.includes("crisp") || s.includes("snack wrapper")) return "snack_wrapper";
+  if (s.includes("battery") || s.includes("aa ") || s.includes("aaa ") || s.includes("lithium")) return "battery_cell";
+  if (s.includes("glass bottle") || s.includes("glass jar")) return "glass_bottle";
+  if (s.includes("styrofoam") || s.includes("polystyrene")) return "styrofoam_container";
+
+  // General tokenization: take first two salient keywords
+  const tokens = s.split(" ").filter(w => w.length > 2);
+  if (tokens.length > 0) return tokens.slice(0, 2).sort().join("_");
+  return (category || "item").toLowerCase();
+}
+
+function processProductScanWindow(itemName, category, sha256Hex) {
+  const normKey = normalizeProductKey(itemName, category);
+  const now = Date.now();
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+  let records = [];
+  try {
+    const raw = localStorage.getItem(PRODUCT_WINDOW_KEY);
+    if (raw) records = JSON.parse(raw);
+    if (!Array.isArray(records)) records = [];
+  } catch (e) {
+    records = [];
+  }
+
+  // 1. Prune expired entries older than 24 hours
+  records = records.filter(r => (now - r.timestamp) < TWENTY_FOUR_HOURS);
+
+  // 2. Check for duplicate product scanned within the rolling 24-hour window
+  const existing = records.find(r => r.normalizedKey === normKey);
+
+  if (existing) {
+    const diffMs = now - existing.timestamp;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const timeAgoStr = diffHours > 0
+      ? (diffHours + "h " + (diffMins % 60) + "m ago")
+      : (diffMins + "m ago");
+
+    const remainingMs = Math.max(0, TWENTY_FOUR_HOURS - diffMs);
+    const remHours = Math.floor(remainingMs / (60 * 60 * 1000));
+    const remMins = Math.floor((remainingMs % (60 * 60 * 1000)) / 60000);
+    const remainingCooldownStr = remHours > 0
+      ? (remHours + "h " + remMins + "m remaining")
+      : (remMins + "m remaining");
+
+    const unlockDate = new Date(existing.timestamp + TWENTY_FOUR_HOURS);
+    const unlockTimeStr = unlockDate.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+    // Save pruned records
+    localStorage.setItem(PRODUCT_WINDOW_KEY, JSON.stringify(records));
+
+    return {
+      isDuplicate: true,
+      productName: existing.productName || itemName,
+      normalizedKey: normKey,
+      timeAgoStr,
+      remainingCooldownStr,
+      unlockTimeStr,
+      cashbackAwarded: 0,
+      xpAwarded: 0
+    };
+  }
+
+  // 3. Unique First Scan in 24 Hours: Award Cashback & Record Lock
+  const cashbackAwarded = 0.05;
+  const xpAwarded = 25;
+  const newRecord = {
+    id: "prod_" + now + "_" + Math.random().toString(36).substring(2, 7),
+    normalizedKey: normKey,
+    productName: itemName,
+    category: category,
+    timestamp: now,
+    firstScannedDate: new Date().toISOString(),
+    cashbackAmount: cashbackAwarded,
+    xpEarned: xpAwarded,
+    sha256: sha256Hex
+  };
+
+  records.push(newRecord);
+  localStorage.setItem(PRODUCT_WINDOW_KEY, JSON.stringify(records));
+
+  // Update cumulative wallet
+  let wallet = { totalCashback: 0, totalXp: 0, totalScans: 0 };
+  try {
+    const rawWallet = localStorage.getItem(WALLET_KEY);
+    if (rawWallet) wallet = JSON.parse(rawWallet);
+  } catch(e) {}
+  wallet.totalCashback = parseFloat(((wallet.totalCashback || 0) + cashbackAwarded).toFixed(2));
+  wallet.totalXp = (wallet.totalXp || 0) + xpAwarded;
+  wallet.totalScans = (wallet.totalScans || 0) + 1;
+  localStorage.setItem(WALLET_KEY, JSON.stringify(wallet));
+
+  return {
+    isDuplicate: false,
+    productName: itemName,
+    normalizedKey: normKey,
+    cashbackAwarded,
+    xpAwarded,
+    wallet
+  };
+}
+
+function updateWalletUI() {
+  const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+
+  let records = [];
+  try {
+    const raw = localStorage.getItem(PRODUCT_WINDOW_KEY);
+    if (raw) records = JSON.parse(raw);
+    if (!Array.isArray(records)) records = [];
+  } catch(e) {}
+  records = records.filter(r => (now - r.timestamp) < TWENTY_FOUR_HOURS);
+
+  let wallet = { totalCashback: 0, totalXp: 0, totalScans: 0 };
+  try {
+    const rawWallet = localStorage.getItem(WALLET_KEY);
+    if (rawWallet) wallet = JSON.parse(rawWallet);
+  } catch(e) {}
+
+  if ($("walletCashbackVal")) $("walletCashbackVal").textContent = "$" + (wallet.totalCashback || 0).toFixed(2);
+  if ($("walletXpVal")) $("walletXpVal").textContent = (wallet.totalXp || 0) + " XP";
+  if ($("walletWindowCount")) $("walletWindowCount").textContent = records.length;
+
+  const listEl = $("walletProductList");
+  const emptyEl = $("walletEmptyState");
+  if (!listEl || !emptyEl) return;
+
+  if (records.length === 0) {
+    emptyEl.style.display = "block";
+    listEl.style.display = "none";
+    listEl.innerHTML = "";
+  } else {
+    emptyEl.style.display = "none";
+    listEl.style.display = "flex";
+    listEl.innerHTML = "";
+
+    // Sort newest first
+    const sorted = [...records].sort((a, b) => b.timestamp - a.timestamp);
+    sorted.forEach(r => {
+      const remainingMs = Math.max(0, TWENTY_FOUR_HOURS - (now - r.timestamp));
+      const remHours = Math.floor(remainingMs / (60 * 60 * 1000));
+      const remMins = Math.floor((remainingMs % (60 * 60 * 1000)) / 60000);
+      const remStr = remHours > 0 ? `${remHours}h ${remMins}m left` : `${remMins}m left`;
+
+      const catEmoji = r.category === "recyclable" ? "♻️" : (r.category === "organic" ? "🌿" : (r.category === "hazardous" ? "⚠️" : "🗑️"));
+
+      const li = document.createElement("li");
+      li.className = "active-window-item";
+      li.innerHTML = `
+        <div class="window-item-left">
+          <span>${catEmoji}</span>
+          <div>
+            <b>${escapeHtml(r.productName)}</b>
+            <div style="font-size:11px;color:var(--muted)">Verified Entry &middot; +$${(r.cashbackAmount || 0.05).toFixed(2)}</div>
+          </div>
+        </div>
+        <div class="window-item-cooldown">
+          <span>⏳</span>
+          <span>${remStr}</span>
+        </div>
+      `;
+      listEl.appendChild(li);
+    });
+  }
+}
+
+// Reset window button for easy testing / user control
+if ($("clearWindowBtn")) {
+  $("clearWindowBtn").addEventListener("click", () => {
+    localStorage.removeItem(PRODUCT_WINDOW_KEY);
+    localStorage.removeItem(WALLET_KEY);
+    localStorage.removeItem("ecovision_scan_hashes_v1");
+    updateWalletUI();
+    $("status").textContent = "24-Hour Scan Window and Cashback Wallet test state reset.";
+  });
+}
+
+// Curated Fallback Knowledge Base for Recyclable Disposal and Creative Upcycling
+const FALLBACK_KNOWLEDGE = {
+  recyclable: {
+    prep_steps: [
+      "Empty all residual liquids and food remnants completely.",
+      "Rinse with cold water — recyclables must be clean to be mechanically processed.",
+      "Remove non-recyclable plastic wrap/caps and flatten cardboard to conserve bin space."
+    ],
+    contamination_tip: "Oil, grease, and liquids ruin entire recycling batches. If heavily soiled, dispose in general waste.",
+    creative_alternatives: [
+      { title: "DIY Plant Propagation Vase", description: "Clean glass or plastic bottles make excellent water propagation vessels for plant cuttings." },
+      { title: "Desk Drawer Organizer", description: "Cut and fold clean cardboard boxes to create compartmentalized stationery storage." }
+    ],
+    eco_swap: { product: "Stainless Steel Refillable Bottle", benefit: "Replaces an estimated 167 single-use containers per person annually." }
+  },
+  organic: {
+    prep_steps: [
+      "Separate all plastic produce stickers, twist ties, and plastic film packaging.",
+      "Chop larger rinds or fibrous scraps into smaller pieces for faster microbial decomposition.",
+      "Deposit into green campus composting bins or departmental collection pails."
+    ],
+    contamination_tip: "Never place plastic bags, foil, or pet waste into campus compost streams.",
+    creative_alternatives: [
+      { title: "Natural Citrus & Vinegar Cleaner", description: "Steep citrus peels in white vinegar for 2 weeks in a glass jar. Strain into a spray bottle for an all-natural kitchen degreaser." },
+      { title: "Nitrogen Soil & Plant Booster", description: "Banana peels and coffee grounds provide potassium and nitrogen directly to garden beds or indoor potted plant soil." },
+      { title: "Freezer Scrap Broth Bag", description: "Save vegetable ends, onion skins, and carrot tops in a freezer container. Boil once full for rich homemade vegetable broth." }
+    ],
+    eco_swap: { product: "Countertop Charcoal Filter Compost Pail", benefit: "Stores food scraps odor-free until your next trip to the campus compost hub." }
+  },
+  general: {
+    prep_steps: [
+      "Ensure item is non-hazardous and cannot be composted, upcycled, or donated.",
+      "Compact item as small as possible to minimize municipal landfill bin volume.",
+      "Deposit into the grey or black campus general waste bin."
+    ],
+    contamination_tip: "Prevent litter scatter by securely depositing wrappers inside closed bin liners.",
+    creative_alternatives: [
+      { title: "Eco-Brick Dense Plastic Filler", description: "Pack non-recyclable clean snack wrappers tightly into a 2L bottle with a stick to build sturdy, insulating eco-bricks for garden borders." },
+      { title: "Waterproof Seedling Starter Pots", description: "Rinse chip packets or snack foil pouches, puncture drainage holes in the bottom, and use as sun-reflective seedling starter pots." },
+      { title: "Protective Packaging Cushioning", description: "Shred clean plastic wrappers or film to substitute for bubble wrap when mailing fragile packages." }
+    ],
+    eco_swap: { product: "Reusable Beeswax Wraps & Silicone Bags", benefit: "Eliminates plastic cling film and disposable single-use snack bags permanently." }
+  },
+  hazardous: {
+    prep_steps: [
+      "Tape terminal ends of lithium/alkaline batteries with clear tape to prevent short circuits.",
+      "Never crush, puncture, or incinerate electronic or battery items.",
+      "Take directly to the campus library or student center e-waste drop-off bin."
+    ],
+    contamination_tip: "Heavy metals and lithium cause landfill fires and contaminate groundwater if tossed in regular bins.",
+    creative_alternatives: [
+      { title: "Campus Tech Repair Clinic", description: "Check if the student engineering society or repair cafe can harvest components or refurbish the device." },
+      { title: "Manufacturer Trade-In Credit", description: "Many electronics retailers offer gift cards or store credit for recycling old cables, chargers, and phones." }
+    ],
+    eco_swap: { product: "USB-C Rechargeable Li-Ion Batteries", benefit: "One rechargeable battery replaces over 500 single-use alkaline batteries." }
+  },
+  unsure: {
+    prep_steps: [
+      "Inspect the bottom or packaging for recycling resin codes (1-7).",
+      "When in doubt, check with campus sustainability staff before tossing.",
+      "Never 'wishcycle' — putting uncertain items in recycling risks contaminating the whole load."
+    ],
+    contamination_tip: "Clean sorting protects recycling workers and ensures campus waste streams remain pure.",
+    creative_alternatives: [
+      { title: "Creative Art Scrap Sorting", description: "Set aside clean, unusual craft scraps for university design and art students or makerspaces." }
+    ],
+    eco_swap: { product: "Zero-Waste Campus Starter Kit", benefit: "Carrying reusable cutlery, mug, and napkin eliminates disposable packaging uncertainty." }
+  }
+};
+
+// --- Direct Gemini API Call (Client-Side Cloud API) ---
+async function callDirectGemini(base64Data, sha256Hex) {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    $("status").textContent = "No Gemini API key available. Enter your key in the settings panel below.";
+    $("apiPanel").open = true;
+    $("geminiKeyInput").focus();
+    return;
+  }
+
+  $("vf").classList.add("scanning");
+  $("status").textContent = "Analyzing item with Google Gemini AI (Direct Cloud API)...";
+  const t0 = performance.now();
+
+  const promptText = `You are an expert waste-sorting assistant for a college campus.
+Look at the photo and classify which bin it belongs to, and provide tailored disposal instructions or creative upcycling alternatives.
+Answer ONLY with JSON matching this exact schema:
+{
+  "item_name": "Short specific item name",
+  "category": "recyclable|organic|hazardous|general|unsure",
+  "is_recyclable": true|false,
+  "explanation": "one short sentence under 20 words",
+  "disposal_prep_steps": ["step 1...", "step 2...", "step 3..."],
+  "contamination_tip": "critical tip on keeping clean or avoiding contamination",
+  "creative_alternatives": [
+    {"title": "Creative DIY or Upcycling Title", "description": "Specific action to reuse or divert from landfill"},
+    {"title": "Composting or Alternative Use", "description": "Specific alternative action"}
+  ],
+  "eco_swap": {"product": "Sustainable Reusable Alternative", "benefit": "Why it minimizes future waste"},
+  "uncertainty_flag": true|false
+}
+Category rules:
+- organic: food scraps, banana peels, tea bags, coffee grounds, compostables. is_recyclable: false.
+- recyclable: clean cans, bottles, clean cardboard, clean paper. is_recyclable: true.
+- hazardous: batteries, e-waste, chargers, fluorescent tubes, chemicals. is_recyclable: false.
+- general: chip packets, wrappers, tissues, greasy/contaminated items, incandescent/LED bulbs, ceramics. is_recyclable: false.
+- unsure: ONLY if blurry, unidentifiable, or non-waste. is_recyclable: false.
+Always provide 2 to 3 practical disposal_prep_steps for recyclables, and 2 inspiring creative_alternatives for non-recyclables. Keep all text concise and actionable.`;
+
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" + encodeURIComponent(apiKey);
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: promptText },
+            { inlineData: { mimeType: "image/jpeg", data: base64Data } }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 600,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              item_name: { type: "STRING" },
+              category: { type: "STRING", enum: ["recyclable", "organic", "hazardous", "general", "unsure"] },
+              is_recyclable: { type: "BOOLEAN" },
+              explanation: { type: "STRING" },
+              disposal_prep_steps: { type: "ARRAY", items: { type: "STRING" } },
+              contamination_tip: { type: "STRING" },
+              creative_alternatives: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    title: { type: "STRING" },
+                    description: { type: "STRING" }
+                  },
+                  required: ["title", "description"]
+                }
+              },
+              eco_swap: {
+                type: "OBJECT",
+                properties: {
+                  product: { type: "STRING" },
+                  benefit: { type: "STRING" }
+                },
+                required: ["product", "benefit"]
+              },
+              uncertainty_flag: { type: "BOOLEAN" }
+            },
+            required: ["item_name", "category", "is_recyclable", "explanation"]
+          }
+        }
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data.error && data.error.message ? data.error.message : ("Gemini API error (" + res.status + ")");
+      throw new Error(msg);
+    }
+
+    const candidate = data.candidates && data.candidates[0];
+    const text = candidate && candidate.content && candidate.content.parts && candidate.content.parts[0] && candidate.content.parts[0].text;
+    if (!text) throw new Error("No classification content returned by the Gemini model.");
+
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (e) {
+      const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      parsed = JSON.parse(clean);
+    }
+
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+    displayResult(parsed, sha256Hex, elapsed);
+    $("status").textContent = "Classification complete in " + elapsed + "s.";
+  } catch (err) {
+    console.error("Direct Gemini API error:", err);
+    $("status").textContent = "AI Analysis Error: " + err.message + ". Check your API key and connection.";
+  } finally {
+    $("vf").classList.remove("scanning");
+  }
+}
+
+// --- Display Results with Dual Branching ---
+function displayResult(result, sha256Hex, elapsed) {
   const categories = ["recyclable", "organic", "hazardous", "general", "unsure"];
-  const cat = categories.includes(r.category) ? r.category : "unsure";
-  $("rItem").textContent = r.item_name || "Unknown";
-  $("rCat").textContent = r.bin_name || (RULES[cat] && RULES[cat].bin_name) || "Check first";
+  const cat = categories.includes(result.category) ? result.category : "unsure";
+  const rule = CAMPUS_RULES[cat] || CAMPUS_RULES["unsure"];
+  const fallback = FALLBACK_KNOWLEDGE[cat] || FALLBACK_KNOWLEDGE["unsure"];
+
+  // Basic Information
+  $("rItem").textContent = result.item_name || "Unknown Item";
+  $("rCat").textContent = rule.bin_name;
   $("tagband").className = "tagband " + cat;
-  $("rWhy").textContent = r.explanation || "-";
-  $("rGuide").textContent = r.guidance || (RULES[cat] && RULES[cat].guidance) || "Follow your campus waste-sorting guidance.";
-  $("rWarn").textContent = r.caution || (r.uncertainty_flag || cat === "unsure"
-    ? "The system is not sure. Try a clearer photo of one item, or ask campus staff."
-    : "Always follow the labels on your campus bins.");
-  $("sampleBanner").style.display = isSample ? "block" : "none";
+  $("rWhy").textContent = result.explanation || "-";
+  $("rGuide").textContent = rule.guidance;
+  $("rWarn").textContent = rule.caution || (result.uncertainty_flag ? "The AI is not confident. When in doubt, ask campus facilities staff." : "Follow your campus waste guidelines.");
+  $("resultHash").textContent = sha256Hex;
+
+  // Determine Recyclability
+  const isRecyclable = typeof result.is_recyclable === "boolean" ? result.is_recyclable : (cat === "recyclable");
+
+  // Waste Type Status Banner
+  const banner = $("wasteTypeBanner");
+  const bannerIcon = $("wasteTypeIcon");
+  const bannerText = $("wasteTypeText");
+  const recyclableSection = $("recyclableSection");
+  const nonRecyclableSection = $("nonRecyclableSection");
+
+  if (isRecyclable) {
+    banner.className = "waste-type-banner recyclable";
+    bannerIcon.textContent = "✅";
+    bannerText.textContent = "100% Recyclable Waste — Follow Proper Disposal Protocol Below";
+
+    // Show Recyclable section, hide Non-Recyclable section
+    recyclableSection.style.display = "block";
+    nonRecyclableSection.style.display = "none";
+
+    // Populate Prep Steps
+    const steps = (Array.isArray(result.disposal_prep_steps) && result.disposal_prep_steps.length > 0)
+      ? result.disposal_prep_steps
+      : fallback.prep_steps;
+
+    const prepList = $("prepStepsList");
+    prepList.innerHTML = "";
+    steps.forEach((step, idx) => {
+      const li = document.createElement("li");
+      li.className = "prep-step-item";
+      li.innerHTML = `<span class="prep-step-num">${idx + 1}</span><span>${escapeHtml(step)}</span>`;
+      prepList.appendChild(li);
+    });
+
+    // Contamination Alert Tip
+    $("contaminationTip").textContent = result.contamination_tip || fallback.contamination_tip;
+
+  } else {
+    banner.className = "waste-type-banner non-recyclable";
+    bannerIcon.textContent = cat === "organic" ? "🌿" : "🚫";
+    bannerText.textContent = cat === "organic"
+      ? "Organic Waste — Composting & Upcycling Recommended"
+      : "Non-Recyclable Item — Creative Upcycling & Waste Minimization";
+
+    // Show Non-Recyclable section, hide Recyclable section
+    recyclableSection.style.display = "none";
+    nonRecyclableSection.style.display = "block";
+
+    // Populate Creative Alternatives
+    const alternatives = (Array.isArray(result.creative_alternatives) && result.creative_alternatives.length > 0)
+      ? result.creative_alternatives
+      : fallback.creative_alternatives;
+
+    const grid = $("creativeGrid");
+    grid.innerHTML = "";
+    alternatives.forEach(alt => {
+      const card = document.createElement("div");
+      card.className = "creative-card";
+      card.innerHTML = `
+        <div class="creative-card-header">
+          <span>💡</span>
+          <span>${escapeHtml(alt.title)}</span>
+        </div>
+        <p>${escapeHtml(alt.description)}</p>
+      `;
+      grid.appendChild(card);
+    });
+
+    // Populate Eco-Swap
+    const ecoSwap = result.eco_swap || fallback.eco_swap;
+    $("ecoSwapTitle").textContent = "Sustainable Swap for Next Time: " + (ecoSwap.product || "Eco Alternative");
+    $("ecoSwapText").textContent = ecoSwap.benefit || "Replaces single-use waste with a durable reusable option.";
+  }
+
+  // 24-Hour Product Scan Window Verification & Cashback Guard
+  const win = processProductScanWindow(result.item_name, cat, sha256Hex);
+  const pwAlert = $("productWindowAlert");
+  const verBadge = $("verifiedScanBadge");
+
+  if (win.isDuplicate) {
+    if (pwAlert) {
+      pwAlert.style.display = "block";
+      $("pwItemName").textContent = win.productName;
+      $("pwTimeAgo").textContent = win.timeAgoStr;
+      $("pwCooldownRemaining").textContent = win.remainingCooldownStr;
+      $("pwUnlockTime").textContent = win.unlockTimeStr;
+    }
+    if (verBadge) verBadge.style.display = "none";
+    $("status").textContent = "⚠ 24-Hour Product Scan Window: Duplicate product scan detected. Cashback & entry locked.";
+  } else {
+    if (pwAlert) pwAlert.style.display = "none";
+    if (verBadge) {
+      verBadge.style.display = "flex";
+      $("verCashbackAmt").textContent = "+$" + win.cashbackAwarded.toFixed(2) + " Cashback";
+      $("verXpAmt").textContent = "+" + win.xpAwarded + " XP";
+    }
+    $("status").textContent = "Classification complete in " + elapsed + "s. Verified 24h entry logged!";
+  }
+
+  updateWalletUI();
+
   $("resultCard").style.display = "block";
-  $("resultCard").scrollIntoView({behavior:"smooth", block:"nearest"});
+  $("resultCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-connectApi();
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Reset / Retake
+$("retakeBtn").addEventListener("click", async () => {
+  if (selectedDeviceId) {
+    await startCamera(selectedDeviceId);
+  } else {
+    await startCamera();
+  }
+});
+
+// Initialize on page load
+updateKeyStatusUI();
+updateWalletUI();
+initCameraSystem();
 </script>
 </body>
 </html>

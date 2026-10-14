@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoVision — Smart Recycling &amp; Sustainability Hub</title>
+  
+  <!-- Google Fonts: Poppins (headings/UI) & Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M6 34 C 6 34, 4 20, 16 9 C 28 -2, 38 2, 38 2 C 38 2, 42 12, 31 24 C 20 36, 6 34, 6 34 Z' fill='%23F5A623'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Allowed CDN Libraries: TensorFlow.js, COCO-SSD, MobileNet, Canvas-Confetti, Leaflet, Chart.js -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  
+  <!-- Optional Config -->
+  <script src="config.local.js"></script>
+  <script src="config.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+
+  <!-- Small Decorative Tropical Leaves (Bug 2 Fix: z-index: 0, pointer-events: none, extreme edges) -->
+  <img src="assets/leaf_branch_top.svg" alt="" class="leaf-top-right" aria-hidden="true">
+  <img src="assets/leaf_branch_side.svg" alt="" class="leaf-side-right" aria-hidden="true">
+
+  <div class="app-container">
+
+    <!-- ====================================================================
+         HEADER BAR (~76px height)
+         ==================================================================== -->
+    <header class="header-bar" role="banner">
+      <!-- Left: Solid Filled Orange Leaf + Wordmark "EcoVision" -->
+      <a href="#live-scan" class="brand" aria-label="EcoVision Home">
+        <div class="brand-icon">
+          <!-- Solid filled orange (#F5A623) leaf icon (~40px, slightly tilted) -->
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 34 C 6 34, 4 20, 16 9 C 28 -2, 38 2, 38 2 C 38 2, 42 12, 31 24 C 20 36, 6 34, 6 34 Z" fill="#F5A623"/>
+            <path d="M6 34 C 13 25, 23 15, 38 2" stroke="#BD7708" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+            <path d="M16 19 C 21 21, 25 25, 25 25" stroke="#BD7708" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>
+            <path d="M22 13 C 27 15, 30 18, 30 18" stroke="#BD7708" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="brand-name">
+          <span class="regular">Eco</span><span class="bold">Vision</span>
+        </div>
+      </a>
+
+      <!-- Centre: Nav Tabs -->
+      <nav class="nav-tabs" aria-label="Main Navigation">
+        <a href="#live-scan" class="nav-tab active" id="tab-live-scan" aria-current="page">
+          <span class="active-dot"></span>
+          <span>Live Scan</span>
+        </a>
+        <a href="#map" class="nav-tab" id="tab-map">Map</a>
+        <a href="#insights" class="nav-tab" id="tab-insights">Insights</a>
+        <a href="#about" class="nav-tab" id="tab-about">About</a>
+      </nav>
+
+      <!-- Right: User Pill (Real State Driven: Starts at Level 1, Eco Beginner) -->
+      <div class="user-pill" role="region" aria-label="User Profile">
+        <div class="user-info">
+          <span class="user-title" id="header-user-level">User Profile: Level 1 🔥</span>
+          <span class="user-subtitle" id="header-user-badge">Badge: Eco Beginner</span>
+        </div>
+        <div class="user-avatar">
+          <img src="assets/avatar.svg" alt="User Avatar">
+        </div>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         MAIN 3-COLUMN DASHBOARD GRID (Equal Heights & Aligned Bottoms)
+         ==================================================================== -->
+    <main id="view-live-scan" class="dashboard-grid tab-view active">
+
+      <!-- ================================================================
+           COLUMN 1: LIVE ECO-SCANNER & ALERTS
+           ================================================================ -->
+      <section class="panel col-scanner" aria-labelledby="col1-heading">
+        <div class="panel-header">
+          <div class="panel-header-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>
+              <circle cx="12" cy="12" r="3" fill="currentColor"/>
+            </svg>
+          </div>
+          <h2 id="col1-heading" class="panel-title">Live Eco-Scanner &amp; Alerts</h2>
+        </div>
+
+        <!-- a) Image Viewport (rounded 14px, ~250px tall, object-fit: cover) -->
+        <div class="scanner-viewport-wrapper">
+          <img id="scanner-feed-image" src="assets/pizza_box.jpg" alt="Greasy cardboard pizza box being held for eco-scanning" class="scanner-feed-image">
+          <video id="scanner-feed-video" class="scanner-feed-video" autoplay playsinline muted style="display: none;"></video>
+
+          <!-- 5-Second Camera Countdown Overlay -->
+          <div id="camera-countdown-overlay" class="camera-countdown-overlay" style="display: none;">
+            <div class="countdown-pulse-circle">
+              <span id="camera-countdown-digits" class="countdown-digits">5</span>
+            </div>
+            <div id="camera-countdown-status" class="countdown-status">Camera live &mdash; capturing in 5s...</div>
+          </div>
+
+          <!-- Camera Shutter Flash -->
+          <div id="camera-shutter-flash" class="camera-shutter-flash"></div>
+
+          <!-- Skeleton Model Loader Indicator -->
+          <div id="model-loader" class="model-loader" style="display: none;">
+            <span>⚡</span>
+            <span>AI Ready</span>
+          </div>
+
+          <!-- Dynamic Bounding Box Overlay with Corner Brackets -->
+          <div id="bounding-box" class="bounding-box" style="display: none;">
+            <span class="corner tl"></span>
+            <span class="corner tr"></span>
+            <span class="corner bl"></span>
+            <span class="corner br"></span>
+            <div class="scan-sweep-line"></div>
+
+            <!-- Recognition Chip -->
+            <div class="recognition-chip">
+              <div class="chip-row-top">
+                <span id="detected-item-name" class="detected-item-name">Awaiting Scan...</span>
+                <span id="match-percentage" class="match-percentage">--%</span>
+              </div>
+              <div id="match-label" class="chip-row-bottom">Tap &lsquo;Use Sample&rsquo; to start</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sleek Scanner Controls Bar beneath Viewport -->
+        <div class="scanner-controls-bar">
+          <button id="btn-camera" class="scanner-action-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.2"/><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+            Start Camera
+          </button>
+          <button id="btn-upload" class="scanner-action-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+            Upload Image
+            <input type="file" id="file-input" accept="image/*" style="display:none;">
+          </button>
+          <button id="btn-sample" class="scanner-action-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+            Use Sample
+          </button>
+        </div>
+
+        <!-- b) Real Contamination Card with Stain Meter -->
+        <div id="alert-card" class="alert-card clean" role="alert" style="display: none;">
+          <div class="alert-header">
+            <svg class="alert-icon" viewBox="0 0 24 24">
+              <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+            </svg>
+            <span id="alert-title" class="alert-title">Clean &ndash; Ready to Recycle!</span>
+            
+            <!-- Real Stain Level Meter -->
+            <div class="stain-meter-pill">
+              <span>Stain: <strong id="stain-percent-text">0%</strong></span>
+              <div class="mini-meter-track">
+                <div id="stain-meter-bar" class="mini-meter-fill clean" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+          <p id="alert-description" class="alert-description">
+            Scan an item to inspect for grease, liquids, and sorting contamination.
+          </p>
+          <div class="alert-action-row">
+            <button id="btn-recycled" class="btn-recycled" type="button" disabled>✓ I recycled it (+25 XP)</button>
+          </div>
+        </div>
+
+        <!-- c) Voice Card (panel-inner, 56px mic, symmetric waveform) -->
+        <div class="voice-card">
+          <div class="voice-status-row">
+            <span class="active-dot"></span>
+            <span class="voice-status-text">
+              AI Active | Voice Control: <span class="voice-status-enabled">Enabled</span>
+            </span>
+          </div>
+
+          <div class="voice-hint-text">
+            Speak: &ldquo;How do I prep this?&rdquo;
+          </div>
+
+          <div class="voice-interaction-row">
+            <!-- 56px lime circular mic button -->
+            <button id="mic-button" class="mic-button" aria-label="Toggle Microphone Voice Control" type="button">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+              </svg>
+            </button>
+
+            <!-- Symmetric Centered Waveform Bars of Lime (#8DC63F) with Idle Animation -->
+            <div class="waveform-container" aria-hidden="true">
+              <span class="wave-bar" style="height: 6px; animation-delay: 0.1s;"></span>
+              <span class="wave-bar" style="height: 12px; animation-delay: 0.2s;"></span>
+              <span class="wave-bar" style="height: 18px; animation-delay: 0.3s;"></span>
+              <span class="wave-bar" style="height: 26px; animation-delay: 0.4s;"></span>
+              <span class="wave-bar" style="height: 36px; animation-delay: 0.5s;"></span>
+              <span class="wave-bar" style="height: 26px; animation-delay: 0.6s;"></span>
+              <span class="wave-bar" style="height: 18px; animation-delay: 0.7s;"></span>
+              <span class="wave-bar" style="height: 12px; animation-delay: 0.8s;"></span>
+              <span class="wave-bar" style="height: 8px; animation-delay: 0.9s;"></span>
+              <span class="wave-bar" style="height: 16px; animation-delay: 1.0s;"></span>
+              <span class="wave-bar" style="height: 28px; animation-delay: 1.1s;"></span>
+              <span class="wave-bar" style="height: 40px; animation-delay: 0.2s;"></span>
+              <span class="wave-bar" style="height: 28px; animation-delay: 0.3s;"></span>
+              <span class="wave-bar" style="height: 16px; animation-delay: 0.4s;"></span>
+              <span class="wave-bar" style="height: 8px; animation-delay: 0.5s;"></span>
+              <span class="wave-bar" style="height: 12px; animation-delay: 0.6s;"></span>
+              <span class="wave-bar" style="height: 18px; animation-delay: 0.7s;"></span>
+              <span class="wave-bar" style="height: 26px; animation-delay: 0.8s;"></span>
+              <span class="wave-bar" style="height: 36px; animation-delay: 0.9s;"></span>
+              <span class="wave-bar" style="height: 26px; animation-delay: 1.0s;"></span>
+              <span class="wave-bar" style="height: 18px; animation-delay: 1.1s;"></span>
+              <span class="wave-bar" style="height: 12px; animation-delay: 1.2s;"></span>
+              <span class="wave-bar" style="height: 6px; animation-delay: 1.3s;"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           COLUMN 2: THE SUSTAINABILITY HUB
+           ================================================================ -->
+      <section class="panel col-hub" aria-labelledby="col2-heading">
+        <div class="panel-header">
+          <div class="panel-header-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+            </svg>
+          </div>
+          <h2 id="col2-heading" class="panel-title">The Sustainability Hub</h2>
+        </div>
+
+        <!-- a) Sub-card "Dynamic Impact Translator" (Real Numbers with Count-up) -->
+        <div class="hub-subcard">
+          <div class="subcard-heading">Dynamic Impact Translator</div>
+          
+          <div class="impact-tiles-row">
+            <!-- Tile 1 (panel-inner): cloud + co2e saved; divider; bolt + kwh avoided -->
+            <div class="impact-tile-metric">
+              <div class="metric-row">
+                <svg class="metric-icon-cloud" viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+                </svg>
+                <div class="metric-text">
+                  <span id="val-co2" class="metric-val-large" data-val="0">-- kg</span>
+                  <span class="metric-lbl-sub">CO₂e saved</span>
+                </div>
+              </div>
+
+              <div class="metric-divider"></div>
+
+              <div class="metric-row">
+                <svg class="metric-icon-bolt" viewBox="0 0 24 24">
+                  <path d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-6 10.49z"/>
+                </svg>
+                <div class="metric-text">
+                  <span id="val-kwh" class="metric-val-large orange" data-val="0">-- kWh</span>
+                  <span class="metric-lbl-sub">avoided</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tile 2: Smartphone charging with caption overlay -->
+            <div class="impact-tile-image">
+              <img src="assets/phone_charge.jpg" alt="Smartphone charging" class="impact-tile-bg">
+              <div class="impact-tile-overlay">
+                <svg class="overlay-icon" viewBox="0 0 24 24" fill="#8DC63F">
+                  <path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/>
+                </svg>
+                <span id="val-smartphones" class="overlay-text">Equivalent to fully charging -- smartphones</span>
+              </div>
+            </div>
+
+            <!-- Tile 3: Glowing filament LED bulb with caption overlay -->
+            <div class="impact-tile-image">
+              <img src="assets/bulb_glow.jpg" alt="Glowing warm lightbulb" class="impact-tile-bg">
+              <div class="impact-tile-overlay">
+                <svg class="overlay-icon" viewBox="0 0 24 24" fill="#F5A623">
+                  <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                </svg>
+                <span id="val-bulb" class="overlay-text">Powering a LED bulb for -- hours</span>
+              </div>
+            </div>
+          </div>
+          <div id="impact-footnote" class="impact-footnote" style="display: none;">* Savings reduced by 60% due to contamination handling</div>
+        </div>
+
+        <!-- b) Sub-card "Local Drop-off Map" -->
+        <div class="hub-subcard" style="display: flex; flex-direction: column; flex: 1;">
+          <div class="map-header-row">
+            <div class="subcard-heading" style="margin-bottom: 0;">Local Drop-off Map</div>
+            <div class="map-controls-group">
+              <button id="btn-search-toggle" class="map-mini-btn" type="button" title="Search City">🔍</button>
+              <button id="btn-unit-toggle" class="unit-toggle-btn" type="button" title="Toggle Distance Unit (mi/km)">mi</button>
+            </div>
+          </div>
+
+          <!-- Geolocation Search Bar fallback -->
+          <div id="location-search-bar" class="location-search-bar" style="display: none;">
+            <input type="text" id="input-location-search" placeholder="Type city or area (e.g. San Francisco)..." aria-label="Search city or area">
+            <button id="btn-location-search" type="button">Find</button>
+          </div>
+
+          <div class="map-card-wrapper">
+            <!-- Real Interactive Leaflet Map with CARTO Voyager Tiles -->
+            <div id="mini-map" class="map-canvas"></div>
+
+            <!-- Floating Quick Navigation Button: ➤ Quick navigation -->
+            <a id="btn-quick-nav" href="https://maps.google.com" target="_blank" rel="noopener" class="quick-nav-pill">
+              <span>➤</span>
+              <span>Quick navigation</span>
+            </a>
+
+            <!-- Red Pin & Callout under Pin (Dynamically updated from real facilities) -->
+            <div class="map-pin-container">
+              <div id="map-callout-banner" class="map-callout-banner">
+                <div id="callout-cat" class="callout-title">Nearest Drop-off Location</div>
+                <div id="callout-sub" class="callout-sub">Locating nearby facilities...</div>
+              </div>
+            </div>
+
+            <!-- Offline Fallback Notice -->
+            <div id="map-offline-badge" class="map-offline-badge" style="display: none;">Directory Mode</div>
+          </div>
+        </div>
+
+        <!-- c) Sub-card "AI Upcycling AI Suggestions" (3-Step Carousel) -->
+        <div class="carousel-section">
+          <div class="carousel-title-row">
+            <span class="subcard-heading" style="margin-bottom: 0;">AI Upcycling AI Suggestions</span>
+            <span class="carousel-pill-tag">(3-Step Carousel)</span>
+          </div>
+          <p class="carousel-subtitle">Custom recipes generated for found items.</p>
+
+          <div class="carousel-track-wrapper">
+            <div id="carousel-track" class="carousel-track">
+              <!-- Dynamically populated by app.js on item scan with realistic thumbnails and Mark as done buttons -->
+              <div class="carousel-card empty-state-card" style="flex: 0 0 100%; height: auto; min-height: 110px;">
+                <p><strong>AI Upcycling Ideas Awaiting Scan</strong></p>
+                <p>Scan any waste or recyclable item to generate tailored recipes based on item condition and contamination.</p>
+              </div>
+            </div>
+
+            <!-- Round Orange Next-Arrow Button -->
+            <button class="carousel-next-btn" aria-label="Next Upcycling Recipe" type="button">
+              <svg viewBox="0 0 24 24">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           COLUMN 3: GAMIFICATION & ALTERNATIVE SHOP
+           ================================================================ -->
+      <section class="panel col-gamification" aria-labelledby="col3-heading">
+        <div class="panel-header">
+          <div class="panel-header-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+            </svg>
+          </div>
+          <h2 id="col3-heading" class="panel-title">Gamification &amp; Alternative Shop</h2>
+        </div>
+
+        <!-- a) Inner Panel: Eco-Swap Alternative Finder (Bug 1 Fix: Normal Block Flow) -->
+        <div class="inner-panel">
+          <h3 class="inner-panel-title">Eco-Swap Alternative Finder</h3>
+          <p class="inner-panel-subtitle">Recommending products based on your scan history.</p>
+
+          <!-- Cream Card (--cream) -->
+          <div class="cream-card">
+            <div class="cream-card-header">Eco-Swap Suggestion:</div>
+            <p id="eco-swap-text" class="cream-card-text">
+              Scan items to discover sustainable zero-waste alternatives tailored to your habits.
+            </p>
+
+            <div id="swap-chips-row" class="swap-chips-row"></div>
+          </div>
+        </div>
+
+        <!-- b) Inner Panel: Progress Scoreboard -->
+        <div class="inner-panel">
+          <div class="scoreboard-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="panel-header-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+                </svg>
+              </div>
+              <h3 class="inner-panel-title" style="margin-bottom: 0;">Progress Scoreboard</h3>
+            </div>
+            <a href="#" id="link-view-history" class="view-history-link" title="View last 20 XP events">View history</a>
+          </div>
+
+          <div class="scoreboard-top-row">
+            <div class="xp-stat">
+              <svg viewBox="0 0 24 24">
+                <path d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-6 10.49z"/>
+              </svg>
+              <span id="scoreboard-xp-amount" class="xp-amount" data-val="0">0 XP</span>
+            </div>
+            <span id="scoreboard-level-tag" class="level-tag">Level 1</span>
+          </div>
+
+          <!-- Lime Glowing Progress Bar (Dynamic) -->
+          <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div id="scoreboard-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div id="scoreboard-progress-sub" class="progress-subtext">0 / 200 XP to Level 2</div>
+
+          <!-- Streak -->
+          <div id="scoreboard-streak" class="streak-text">
+            🔥 Start your streak today
+          </div>
+
+          <!-- Unlockable Badges -->
+          <div class="badges-section">
+            <span class="badges-header-label">Unlockable badges:</span>
+
+            <div class="badges-row">
+              <!-- Badge 1: Compost Hero -->
+              <div id="badge-compost-hero" class="badge-item locked">
+                <div class="badge-hexagon">
+                  <svg viewBox="0 0 100 115" width="48" height="54">
+                    <polygon points="50 3, 97 28, 97 87, 50 112, 3 87, 3 28" stroke-width="4"/>
+                    <g fill="#A5B8AC" stroke="none">
+                      <path d="M50 38 C 50 38, 40 32, 34 38 C 28 44, 34 54, 50 50 Z"/>
+                      <path d="M50 34 C 50 34, 60 28, 66 34 C 72 40, 66 50, 50 46 Z"/>
+                      <path d="M48 48 L48 64 L52 64 L52 46 Z"/>
+                      <path d="M38 66 L62 66 L58 84 L42 84 Z"/>
+                      <rect x="36" y="63" width="28" height="4" rx="2"/>
+                    </g>
+                  </svg>
+                </div>
+                <span class="badge-name">Compost Hero</span>
+              </div>
+
+              <!-- Badge 2: Material Master -->
+              <div id="badge-material-master" class="badge-item locked">
+                <div class="badge-hexagon">
+                  <svg viewBox="0 0 100 115" width="48" height="54">
+                    <polygon points="50 3, 97 28, 97 87, 50 112, 3 87, 3 28" stroke-width="4"/>
+                    <g fill="#A5B8AC" stroke="none">
+                      <polygon points="50 34, 72 45, 50 56, 28 45"/>
+                      <polygon points="27 48, 48 58, 48 82, 27 70" opacity="0.85"/>
+                      <polygon points="52 58, 73 48, 73 70, 52 82" opacity="0.95"/>
+                    </g>
+                  </svg>
+                </div>
+                <span class="badge-name">Material Master</span>
+              </div>
+
+              <!-- Badge 3: Specialist -->
+              <div id="badge-specialist" class="badge-item locked">
+                <div class="badge-hexagon">
+                  <svg viewBox="0 0 100 115" width="48" height="54">
+                    <polygon points="50 3, 97 28, 97 87, 50 112, 3 87, 3 28" stroke-width="4"/>
+                    <g fill="#A5B8AC" stroke="none">
+                      <circle cx="50" cy="50" r="15"/>
+                      <circle cx="50" cy="50" r="10" fill="#4B5A50"/>
+                      <path d="M43 62 L38 84 L50 78 L62 84 L57 62 Z"/>
+                    </g>
+                  </svg>
+                </div>
+                <span class="badge-name">Specialist</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ====================================================================
+         FULL-WIDTH MAP VIEW (Tab #map)
+         ==================================================================== -->
+    <div id="view-map" class="tab-view panel full-tab-view" style="display: none;">
+      <div class="panel-header" style="justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="panel-header-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+          </div>
+          <h2 class="panel-title">Regional Drop-off &amp; Recycling Finder</h2>
+        </div>
+        <div class="map-controls-group">
+          <input type="text" id="input-full-map-search" placeholder="Search city or zip..." class="map-search-input">
+          <button id="btn-full-map-search" class="scanner-action-btn" type="button">Search</button>
+          <button id="btn-full-map-unit" class="unit-toggle-btn" type="button">mi</button>
+          <button id="btn-sort-dist" class="scanner-action-btn" type="button">Sort: Closest First</button>
+        </div>
+      </div>
+      <div class="full-map-layout">
+        <div id="full-map-canvas" class="full-map-canvas"></div>
+        <div class="full-map-sidebar">
+          <div class="sidebar-heading">Nearest Drop-off Facilities (<span id="dropoff-count">10</span>)</div>
+          <div id="full-map-list" class="full-map-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         INSIGHTS VIEW (Tab #insights)
+         ==================================================================== -->
+    <div id="view-insights" class="tab-view panel full-tab-view" style="display: none;">
+      <div class="panel-header">
+        <div class="panel-header-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+          </svg>
+        </div>
+        <h2 class="panel-title">EcoVision Environmental Impact Analytics</h2>
+      </div>
+      <div class="insights-grid">
+        <div class="insight-card">
+          <div class="subcard-heading">CO₂e Offset Over Time (kg)</div>
+          <div class="chart-wrapper"><canvas id="chart-co2"></canvas></div>
+        </div>
+        <div class="insight-card">
+          <div class="subcard-heading">Scanned Materials Breakdown</div>
+          <div class="chart-wrapper"><canvas id="chart-materials"></canvas></div>
+        </div>
+        <div class="insight-card">
+          <div class="subcard-heading">Cumulative Energy Avoided (kWh)</div>
+          <div class="chart-wrapper"><canvas id="chart-kwh"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         ABOUT VIEW (Tab #about)
+         ==================================================================== -->
+    <div id="view-about" class="tab-view panel full-tab-view" style="display: none;">
+      <div class="panel-header">
+        <div class="panel-header-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+        </div>
+        <h2 class="panel-title">About EcoVision — Intelligent Sustainability Hub</h2>
+      </div>
+      <div class="about-content">
+        <div class="about-section">
+          <h3>Our Mission</h3>
+          <p>EcoVision bridges computer vision, real-time chemical contamination analysis, and municipal open data to empower everyday individuals to eliminate waste sorting confusion and prevent recycling stream contamination.</p>
+        </div>
+        <div class="about-section">
+          <h3>Gamification &amp; Scoring System</h3>
+          <p>Level progression follows cumulative XP curve: <code>XP = 100 &times; n &times; (n &minus; 1)</code>. You earn XP through verified scanning (+50 XP), first material bonuses (+30 XP), recycling confirmation (+25 XP), completed upcycling recipes (+40 XP), product wishlisting (+10 XP), voice assistance (+5 XP), and maintaining daily eco streaks (+20 XP).</p>
+        </div>
+        <div class="about-section">
+          <h3>Peer-Reviewed Data &amp; Methodology</h3>
+          <p>LCA emissions and energy factors are curated from EPA WARM v15, the Association of Plastic Recyclers (APR), The Aluminum Association, Project Drawdown, and OpenStreetMap Overpass APIs.</p>
+        </div>
+        <div class="about-section">
+          <h3>Privacy First Architecture</h3>
+          <p>All camera streams, image classifications, and canvas grease analysis run 100% locally on your machine via client-side TensorFlow.js. No private photos or video frames are ever recorded or transmitted to third parties.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

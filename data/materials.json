@@ -1,0 +1,557 @@
+[
+  {
+    "id": "cardboard",
+    "name": "Cardboard Pizza Box",
+    "aliases": ["pizza box", "cardboard", "carton", "box", "corrugated cardboard", "packaging", "pizza"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.38,
+    "co2e_saved_per_kg": 0.92,
+    "kwh_saved_per_kg": 1.45,
+    "contamination_rules": "Food grease and oil soak deeply into cardboard fibers and cannot be washed out during pulping. Rip off clean cardboard to recycle; discard or compost oily sections.",
+    "prep_steps": "Remove all food scraps and liner paper. If oily or greasy, tear off and recycle only the clean top lid. Compost the greasy base.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Soiled bottom half:",
+        "desc": "Place in backyard compost pile",
+        "action": "Compost base"
+      },
+      {
+        "step": 2,
+        "title": "Torn Cardboard:",
+        "desc": "Use as weed barrier in garden beds",
+        "action": "Garden mulch"
+      },
+      {
+        "step": 3,
+        "title": "Grease-free top lid:",
+        "desc": "Cut into seedling starter pots",
+        "action": "Seedling pots"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Reusable beeswax", "class": "chip-red", "desc": "Reusable beeswax wraps replace single-use packaging." },
+      { "name": "Baking matts", "class": "chip-amber", "desc": "Silicone baking mats eliminate parchment waste." },
+      { "name": "Silicone baking mats", "class": "chip-amber", "desc": "Durable heat-resistant mats lasting 3,000+ bakes." }
+    ]
+  },
+  {
+    "id": "plastic_bottle",
+    "name": "Plastic Bottle",
+    "aliases": ["water bottle", "plastic bottle", "pop bottle", "beverage bottle", "soda bottle", "bottle"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.035,
+    "co2e_saved_per_kg": 1.55,
+    "kwh_saved_per_kg": 5.60,
+    "contamination_rules": "Liquids left inside contaminate sorting bales. Rinse clean, squash to save bin space, and screw the cap back on.",
+    "prep_steps": "Empty any remaining liquids, quick rinse with cold water, crush the bottle flat, and screw the plastic cap back on.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Self-Watering Planter:",
+        "desc": "Cut in half and invert top half with a cotton wick",
+        "action": "Make planter"
+      },
+      {
+        "step": 2,
+        "title": "Garden Scoop:",
+        "desc": "Cut diagonally from handle for soil and pet food",
+        "action": "Soil scoop"
+      },
+      {
+        "step": 3,
+        "title": "Drip Irrigation:",
+        "desc": "Puncture tiny pinholes in base for slow root watering",
+        "action": "Slow dripper"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Insulated Flask", "class": "chip-red", "desc": "Stainless steel flask keeps drinks cold for 24h." },
+      { "name": "Glass Tumbler", "class": "chip-amber", "desc": "Borosilicate glass bottle with protective silicone." },
+      { "name": "Filter Pitcher", "class": "chip-amber", "desc": "Activated carbon tap filter replaces bottled water." }
+    ]
+  },
+  {
+    "id": "aluminum_can",
+    "name": "Aluminum Can",
+    "aliases": ["can", "tin can", "beer can", "aluminum can", "soda can"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.015,
+    "co2e_saved_per_kg": 9.13,
+    "kwh_saved_per_kg": 14.20,
+    "contamination_rules": "Aluminum is 100% infinitely recyclable! Requires only a quick rinse. Do not insert foreign objects like cigarette butts inside.",
+    "prep_steps": "Ensure beverage can is empty. Light rinse. No need to crush if your municipality uses optical eddy-current sorters.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Desk Organiser:",
+        "desc": "Smooth edges and paint as a pen and brush holder",
+        "action": "Pen cup"
+      },
+      {
+        "step": 2,
+        "title": "Emergency Camp Stove:",
+        "desc": "Craft a lightweight alcohol mini-burner",
+        "action": "Mini stove"
+      },
+      {
+        "step": 3,
+        "title": "Plant Markers:",
+        "desc": "Cut metal strips and emboss vegetable plant labels",
+        "action": "Herb tags"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "SodaStream Maker", "class": "chip-red", "desc": "Make sparkling water at home with reusable glass carafes." },
+      { "name": "Loose Leaf Tea", "class": "chip-amber", "desc": "Brew loose tea instead of buying ready-to-drink canned teas." },
+      { "name": "Stainless Growler", "class": "chip-amber", "desc": "Refill craft beverages directly at local taprooms." }
+    ]
+  },
+  {
+    "id": "glass_bottle",
+    "name": "Glass Bottle / Jar",
+    "aliases": ["glass bottle", "wine bottle", "beer bottle", "glass jar", "mason jar"],
+    "recyclable": true,
+    "dropoff_type": "glass",
+    "typical_weight_kg": 0.25,
+    "co2e_saved_per_kg": 0.31,
+    "kwh_saved_per_kg": 0.78,
+    "contamination_rules": "Remove metal and plastic lids. Ceramics, pyrex, and window glass melt at different temperatures and must NOT go in glass recycling.",
+    "prep_steps": "Rinse out food or drink residue. Separate metal or plastic lids. Labels do not need to be scraped off.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Pantry Storage:",
+        "desc": "Sterilize jars for grains, nuts, spices, and pulses",
+        "action": "Bulk jar"
+      },
+      {
+        "step": 2,
+        "title": "Fairy Light Lantern:",
+        "desc": "Place micro solar LEDs inside for patio ambiance",
+        "action": "Patio light"
+      },
+      {
+        "step": 3,
+        "title": "Water Propagation:",
+        "desc": "Root indoor plant cuttings on bright windowsills",
+        "action": "Plant rooting"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Zero-Waste Pantry", "class": "chip-red", "desc": "Shop at package-free refill grocery stores." },
+      { "name": "Silicone Bowl Lids", "class": "chip-amber", "desc": "Stretchy airtight lids for leftover containers." },
+      { "name": "Cork Stoppers", "class": "chip-amber", "desc": "Natural compostable corks for open bottles." }
+    ]
+  },
+  {
+    "id": "paper",
+    "name": "Paper & Newspaper",
+    "aliases": ["paper", "newspaper", "magazine", "book", "document", "office paper"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.08,
+    "co2e_saved_per_kg": 1.10,
+    "kwh_saved_per_kg": 3.20,
+    "contamination_rules": "Paper must be dry and free of plastic coatings, staples, and wax. Shredded paper jams recycling conveyor belts.",
+    "prep_steps": "Keep clean and dry. Remove plastic wrapping or spiral bindings. Flatten and place in paper recycling.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Window Cleaner:",
+        "desc": "Newspaper + vinegar provides streak-free glass shine",
+        "action": "Window shine"
+      },
+      {
+        "step": 2,
+        "title": "Seed Paper:",
+        "desc": "Blend paper pulp with wildflower seeds to plant",
+        "action": "Plantable cards"
+      },
+      {
+        "step": 3,
+        "title": "Compost Carbon:",
+        "desc": "Shred as 'browns' to balance compost nitrogen",
+        "action": "Compost browns"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "E-Reader / Tablet", "class": "chip-red", "desc": "Read books, news, and magazines completely digitally." },
+      { "name": "Swedish Dishcloths", "class": "chip-amber", "desc": "Washable sponge cloths replace 15 paper towel rolls." },
+      { "name": "Bidet Attachment", "class": "chip-amber", "desc": "Reduces household toilet paper consumption by 80%." }
+    ]
+  },
+  {
+    "id": "food_waste",
+    "name": "Organic Food Waste",
+    "aliases": ["food", "banana", "apple", "peel", "vegetable", "bread", "leftovers", "orange"],
+    "recyclable": true,
+    "dropoff_type": "compost",
+    "typical_weight_kg": 0.20,
+    "co2e_saved_per_kg": 0.72,
+    "kwh_saved_per_kg": 0.45,
+    "contamination_rules": "Food in landfills generates methane (CH₄). Keep free of plastic stickers, produce rubber bands, and plastic packaging.",
+    "prep_steps": "Remove plastic produce stickers. Collect in a vented countertop caddy with a certified compostable liner.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Citrus Cleaner:",
+        "desc": "Steep orange peels in white vinegar for degreasing",
+        "action": "Citrus spray"
+      },
+      {
+        "step": 2,
+        "title": "Veggie Broth:",
+        "desc": "Freeze clean onion tops and carrot ends to boil broth",
+        "action": "Free broth"
+      },
+      {
+        "step": 3,
+        "title": "Regrow Scallions:",
+        "desc": "Place white scallion roots in 1 inch of fresh water",
+        "action": "Regrow greens"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Bokashi Composter", "class": "chip-red", "desc": "Ferments kitchen scraps right under your sink with no odors." },
+      { "name": "Silicone Huggers", "class": "chip-amber", "desc": "Food huggers cap half-cut lemons, onions, and avocados." },
+      { "name": "Cloth Produce Bags", "class": "chip-amber", "desc": "Breathable organic cotton bags keep produce crisp longer." }
+    ]
+  },
+  {
+    "id": "e_waste",
+    "name": "E-Waste / Electronics",
+    "aliases": ["cell phone", "phone", "laptop", "cable", "mouse", "keyboard", "circuit", "charger"],
+    "recyclable": true,
+    "dropoff_type": "e-waste",
+    "typical_weight_kg": 0.18,
+    "co2e_saved_per_kg": 22.50,
+    "kwh_saved_per_kg": 45.00,
+    "contamination_rules": "Never put electronics in household curbside bins! Batteries pose serious fire hazards. Requires specialized drop-off.",
+    "prep_steps": "Factory reset device to erase personal data. Remove SIM/SD cards. Tape battery terminals with electrical tape.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Dedicated Webcam:",
+        "desc": "Use older smartphones as high-res desktop webcams",
+        "action": "HD Webcam"
+      },
+      {
+        "step": 2,
+        "title": "Smart Home Hub:",
+        "desc": "Mount on wall as a dedicated dashboard controller",
+        "action": "Home console"
+      },
+      {
+        "step": 3,
+        "title": "Digital Photo Frame:",
+        "desc": "Set slideshow mode plugged into a nightstand dock",
+        "action": "Photo frame"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Fairphone / Modular", "class": "chip-red", "desc": "Repairable modular phones with replaceable batteries." },
+      { "name": "Braided Cables", "class": "chip-amber", "desc": "Heavy-duty Kevlar reinforced charging cables." },
+      { "name": "Certified Refurbished", "class": "chip-amber", "desc": "Choose renewed hardware with manufacturer warranties." }
+    ]
+  },
+  {
+    "id": "battery",
+    "name": "Batteries",
+    "aliases": ["battery", "accumulator", "powerbank", "lithium battery", "alkaline"],
+    "recyclable": true,
+    "dropoff_type": "hazardous",
+    "typical_weight_kg": 0.05,
+    "co2e_saved_per_kg": 5.20,
+    "kwh_saved_per_kg": 18.00,
+    "contamination_rules": "Batteries contain lithium, lead, or cadmium. High thermal runaway risk. NEVER dispose of in regular trash.",
+    "prep_steps": "Cover terminal contacts (+ and -) with clear scotch or electrical tape to prevent short circuits in transit.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Battery Tester Check:",
+        "desc": "Test voltage; weak toy batteries often still power clocks",
+        "action": "Check voltage"
+      },
+      {
+        "step": 2,
+        "title": "Store Organised:",
+        "desc": "Keep taped dead batteries in a non-conductive plastic box",
+        "action": "Safe caddy"
+      },
+      {
+        "step": 3,
+        "title": "Retail Drop-off:",
+        "desc": "Best Buy, Home Depot, or Staples free drop bin",
+        "action": "Store drop"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "USB-C Rechargeables", "class": "chip-red", "desc": "Lithium AA/AAA batteries that plug right into USB ports." },
+      { "name": "Eneloop NiMH Cells", "class": "chip-amber", "desc": "Rechargeable up to 2,100 times per battery." },
+      { "name": "Solar Flashlight", "class": "chip-amber", "desc": "Emergency lights with integrated solar photovoltaic cells." }
+    ]
+  },
+  {
+    "id": "plastic_container",
+    "name": "Plastic Tub / Container",
+    "aliases": ["tupperware", "yogurt tub", "plastic container", "takeout container", "shampoo bottle"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.06,
+    "co2e_saved_per_kg": 1.40,
+    "kwh_saved_per_kg": 4.80,
+    "contamination_rules": "Rigid HDPE (#2) and PP (#5) containers must be rinsed. Black plastic cannot be detected by optical recycling scanners.",
+    "prep_steps": "Scrape clean of dairy or sauce. Rinse lightly. Check the resin code on the base (#1, #2, #5 are recyclable).",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Hardware Organizer:",
+        "desc": "Sort screws, bolts, buttons, and sewing kit needles",
+        "action": "Screws caddy"
+      },
+      {
+        "step": 2,
+        "title": "Paint Mixing Cups:",
+        "desc": "Ideal sturdy wash cups for watercolor and DIY crafts",
+        "action": "Paint pots"
+      },
+      {
+        "step": 3,
+        "title": "Freezer Portions:",
+        "desc": "Freeze batch-cooked stocks and herb butter portions",
+        "action": "Stock tub"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Glass Snapware", "class": "chip-red", "desc": "Oven and microwave safe glass food storage containers." },
+      { "name": "Stainless Bento Box", "class": "chip-amber", "desc": "Zero-plastic leakproof lunch containers for on-the-go." },
+      { "name": "Shampoo Bar", "class": "chip-amber", "desc": "Solid cold-pressed bars eliminate plastic bottle waste." }
+    ]
+  },
+  {
+    "id": "steel_can",
+    "name": "Steel / Tin Can",
+    "aliases": ["tin can", "canned food", "soup can", "steel can", "tuna can"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.05,
+    "co2e_saved_per_kg": 1.75,
+    "kwh_saved_per_kg": 3.80,
+    "contamination_rules": "Food grease and soup residue spoil bales. Magnetic sorting separates steel easily from aluminum.",
+    "prep_steps": "Rinse clean. If lid is attached, push it inside the can so sharp edges do not cut sanitation workers.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Herb Garden Pots:",
+        "desc": "Punch drainage holes in bottom for windowsill thyme",
+        "action": "Herb can"
+      },
+      {
+        "step": 2,
+        "title": "Punched Tin Lantern:",
+        "desc": "Freeze filled with water, hammer decorative pinhole pattern",
+        "action": "Tin lantern"
+      },
+      {
+        "step": 3,
+        "title": "Cutlery Holder:",
+        "desc": "Group 6 cans on a wooden plank with a leather strap handle",
+        "action": "Caddy"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Dried Bulk Beans", "class": "chip-red", "desc": "Instant Pot cooking dry beans cuts can waste and sodium." },
+      { "name": "Glass Preserve Jars", "class": "chip-amber", "desc": "Buy sauces in reusable wide-mouth glass packaging." },
+      { "name": "Fresh Market Soups", "class": "chip-amber", "desc": "Batch prep homemade soups in reusable freezer containers." }
+    ]
+  },
+  {
+    "id": "tetra_pak",
+    "name": "Tetra Pak / Carton",
+    "aliases": ["milk carton", "juice box", "carton", "tetra pak", "oat milk carton"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.04,
+    "co2e_saved_per_kg": 0.85,
+    "kwh_saved_per_kg": 2.20,
+    "contamination_rules": "Multi-layer composites (paperboard + polyethylene + aluminum foil). Accepted in carton programs, but check local guidelines.",
+    "prep_steps": "Empty fully, remove plastic straws, flatten carton. Re-attach plastic cap if your local program accepts caps on.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Bird Feeder:",
+        "desc": "Cut openings on sides and fill with sunflower seeds",
+        "action": "Bird feeder"
+      },
+      {
+        "step": 2,
+        "title": "Waterproof Seed Bed:",
+        "desc": "Slit side horizontally for indoor microgreen planter",
+        "action": "Microgreen bed"
+      },
+      {
+        "step": 3,
+        "title": "Drawer Dividers:",
+        "desc": "Cut bottoms at 3 inches for tidy sock and tie organizing",
+        "action": "Drawer bins"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Nut Milk Maker", "class": "chip-red", "desc": "Make fresh almond, oat, or soy milk with water and grain." },
+      { "name": "Returnable Milk Bottles", "class": "chip-amber", "desc": "Exchangeable glass deposit bottles from local creameries." },
+      { "name": "Concentrated Juices", "class": "chip-amber", "desc": "Mix juice concentrates directly into pitcher at home." }
+    ]
+  },
+  {
+    "id": "textile",
+    "name": "Textiles & Clothing",
+    "aliases": ["shirt", "jeans", "fabric", "cloth", "towel", "clothing", "t-shirt"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.22,
+    "co2e_saved_per_kg": 3.60,
+    "kwh_saved_per_kg": 7.50,
+    "contamination_rules": "Textiles tangle in recycling conveyor belts. Donate wearable items; bring worn-out scraps to dedicated textile bins.",
+    "prep_steps": "Wash and dry thoroughly. Separate wearable garments from stained or torn fabric scraps for downcycling.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Reusable Cleaning Rags:",
+        "desc": "Cut old t-shirts into soft, lint-free dusting towels",
+        "action": "Dust cloths"
+      },
+      {
+        "step": 2,
+        "title": "No-Sew Tote Bag:",
+        "desc": "Snip shirt sleeves and tie fringe base into a market bag",
+        "action": "T-shirt tote"
+      },
+      {
+        "step": 3,
+        "title": "Braided Pet Toy:",
+        "desc": "Braid strips of denim or cotton into sturdy dog tug rope",
+        "action": "Dog tug toy"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Thrifting & Vintage", "class": "chip-red", "desc": "Buy quality pre-loved fashion on secondhand platforms." },
+      { "name": "Organic Linen Basics", "class": "chip-amber", "desc": "Durable natural fibers that biodegrade cleanly." },
+      { "name": "Mending Kit", "class": "chip-amber", "desc": "Learn sashiko visible mending to extend garment lifespans." }
+    ]
+  },
+  {
+    "id": "styrofoam",
+    "name": "Styrofoam / EPS Foam",
+    "aliases": ["styrofoam", "foam", "polystyrene", "foam cup", "takeout foam"],
+    "recyclable": false,
+    "dropoff_type": "hazardous",
+    "typical_weight_kg": 0.02,
+    "co2e_saved_per_kg": 0.0,
+    "kwh_saved_per_kg": 0.0,
+    "contamination_rules": "Expanded polystyrene (#6) breaks into microplastic beads and is almost never accepted curbside. Specialized drop-off only.",
+    "prep_steps": "Wipe clean of tape and stickers. Do not break or crumble into beads. Check if local depot densifies EPS foam.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Planter Drainage:",
+        "desc": "Break chunks into the base of deep garden pots to lighten weight",
+        "action": "Pot base"
+      },
+      {
+        "step": 2,
+        "title": "Package Cushioning:",
+        "desc": "Save for mailing fragile items to friends and family",
+        "action": "Fragile wrap"
+      },
+      {
+        "step": 3,
+        "title": "Kneeling Garden Pad:",
+        "desc": "Wrap dense sheet in water-resistant plastic sack",
+        "action": "Knee pad"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Mushroom Packaging", "class": "chip-red", "desc": "Mycelium bio-foam cushions that compost in garden soil." },
+      { "name": "Corrugated Bubble Wrap", "class": "chip-amber", "desc": "Recycled kraft paper honeycomb cushioning." },
+      { "name": "Stainless Takeout Tiffin", "class": "chip-amber", "desc": "Bring your own container when ordering restaurant takeout." }
+    ]
+  },
+  {
+    "id": "coffee_cup",
+    "name": "Disposable Coffee Cup",
+    "aliases": ["coffee cup", "paper cup", "takeaway cup", "starbucks cup"],
+    "recyclable": false,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.018,
+    "co2e_saved_per_kg": 0.40,
+    "kwh_saved_per_kg": 1.10,
+    "contamination_rules": "Paper cups have a bonded plastic polyethylene (PE) waterproof liner. Only specialized facilities can delaminate them.",
+    "prep_steps": "Remove plastic lid and recycle lid if #5. Discard paper cup in general waste unless marked as BPI-certified compostable.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Seed Starter Cup:",
+        "desc": "Poke a hole in bottom and plant tomato seeds on sill",
+        "action": "Seed starter"
+      },
+      {
+        "step": 2,
+        "title": "Paint Mixing Pot:",
+        "desc": "Use for mixing gouache, acrylics, or wood glues",
+        "action": "Craft pot"
+      },
+      {
+        "step": 3,
+        "title": "Scoop for Fertilizer:",
+        "desc": "Handy volume measure for potting soil and plant food",
+        "action": "Soil scoop"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "KeepCup Glass Travel Cup", "class": "chip-red", "desc": "Barista-standard reusable tempered glass travel mug." },
+      { "name": "Collapsible Silicone Cup", "class": "chip-amber", "desc": "Folds flat into your pocket or handbag after finishing coffee." },
+      { "name": "Thermos Travel Tumbler", "class": "chip-amber", "desc": "Vacuum insulation keeps coffee steaming hot for 6 hours." }
+    ]
+  },
+  {
+    "id": "plastic_bag",
+    "name": "Plastic Bag / Film",
+    "aliases": ["plastic bag", "shopping bag", "grocery bag", "bubble wrap", "shrink wrap"],
+    "recyclable": true,
+    "dropoff_type": "recycling",
+    "typical_weight_kg": 0.008,
+    "co2e_saved_per_kg": 1.25,
+    "kwh_saved_per_kg": 4.10,
+    "contamination_rules": "Plastic bags wrap around gears and wheels in curbside sorting plants! Must be returned to grocery store collection bins.",
+    "prep_steps": "Empty all receipts and crumbs. Ensure film is completely dry. Bunch together into a single bag for retail return bins.",
+    "upcycling_ideas": [
+      {
+        "step": 1,
+        "title": "Small Trash Liners:",
+        "desc": "Reuse as bathroom and desk bin liners before discarding",
+        "action": "Bin liner"
+      },
+      {
+        "step": 2,
+        "title": "Plarn (Plastic Yarn):",
+        "desc": "Cut into strips and crochet into waterproof outdoor mats",
+        "action": "Plarn craft"
+      },
+      {
+        "step": 3,
+        "title": "Packing Material:",
+        "desc": "Stuff into shipping boxes to protect fragile items",
+        "action": "Package wrap"
+      }
+    ],
+    "eco_swaps": [
+      { "name": "Organic Cotton Tote", "class": "chip-red", "desc": "Washable canvas tote replaces 500+ single-use plastic bags." },
+      { "name": "Mesh Produce Bags", "class": "chip-amber", "desc": "Lightweight tare-weight mesh sacks for apples and veggies." },
+      { "name": "Foldable Ripstop Bag", "class": "chip-amber", "desc": "Clips onto your keychain and holds up to 20 kg of groceries." }
+    ]
+  }
+]

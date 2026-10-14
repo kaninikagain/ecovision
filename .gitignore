@@ -4,6 +4,10 @@
 !.env.example
 *.env.local
 .env.local
+config.local.js
+*.local.js
+config.env.js
+!config.local.example.js
 
 # Python virtual environments & packages
 venv/
@@ -44,3 +48,12 @@ evaluation/images/*
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Test profiles & temporary test output
+.test-*
+.test-profile*/
+test_*.js
+test_*.py
+capture_*.js
+screenshot_*.png
+
